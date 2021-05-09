@@ -40,7 +40,5 @@ class Block:
 
 def main(queue):
     for i in range(0, 10):
-        newBlock = Block(["{'user_id': 'user_1', 'user_data': 'data_1'}",
-           "{'user_id': 'user_2', 'user_data': 'data_2'}"])
-        newBlock.header['nonce'] = i
+        newBlock = Block([f"{i}"])
         queue.put(newBlock)
