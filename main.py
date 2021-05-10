@@ -8,7 +8,7 @@ import miner
 import block_appender
 
 MAX_BLOCKS_ENQUEUED = 2048
-CANT_MINERS = 1
+CANT_MINERS = 4
 
 def main():
     block_builder_to_miners_coordinator_queue = Queue(

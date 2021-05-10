@@ -1,9 +1,11 @@
+import sys
 from hashlib import sha256
 import datetime
 
 INITIAL_LAST_HASH = 0
 INITIAL_DIFFICULTY = 1
 MAX_ENTRIES_AMOUNT = 5
+MAX_NONCE = sys.maxsize
 
 def isCryptographicPuzzleSolved(block, difficulty):
     return block.hash() < (2**256) / difficulty - 1
