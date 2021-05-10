@@ -1,8 +1,39 @@
 import datetime
-from common import isCryptographicPuzzleSolved, INITIAL_DIFFICULTY, INITIAL_LAST_HASH
+import socket
+import json
+from common import isCryptographicPuzzleSolved, INITIAL_DIFFICULTY, INITIAL_LAST_HASH, STORAGE_MANAGER_HOST, STORAGE_MANAGER_PORT, BLOCK_LEN_LEN_IN_BYTES
 
 BLOCKS_ADDED_TO_ADJUST_DIFFICULTY = 2  # TODO poner 256
-TARGET_TIME_IN_SECONDS = 4 # TODO poner 12
+TARGET_TIME_IN_SECONDS = 1 # TODO poner 12
+
+class BlockWriterInterface:
+    def __init__(self):
+        self.socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+        self.socket.connect((STORAGE_MANAGER_HOST, STORAGE_MANAGER_PORT))
+
+    def write(self, block):
+        total_sent = 0
+        data = self.serialize_block(block)
+        # print(len(data))
+        # print(data)
+        while total_sent < len(data):
+            sent = self.socket.send(data[total_sent:])
+            if sent == 0:
+                raise RuntimeError("socket connection broken")
+            total_sent = total_sent + sent
+
+    def serialize_block(self, block):
+        block_in_json = json.dumps({
+            "header": {
+                'prev_hash': block.header['prev_hash'],
+                'nonce': block.header['nonce'],
+                'timestamp': block.header['timestamp'].timestamp(),
+                'difficulty': block.header['difficulty'],
+                'entries_amount': block.header['entries_amount'],
+            },
+            "entries": block.entries
+        }).encode('utf-8')
+        return len(block_in_json).to_bytes(BLOCK_LEN_LEN_IN_BYTES, byteorder='big', signed=False) + block_in_json
 
 class BlockAppender:
     def __init__(self):
@@ -10,10 +41,12 @@ class BlockAppender:
         self.last_block_hash = INITIAL_LAST_HASH
         self.start_time = datetime.datetime.now()
         self.blocks_added = 0
+        self.block_writer_interface = BlockWriterInterface()
 
     def addBlock(self, block):
         if (self.isBlockValid(block)):
-            # TODO self.blocks.append(newBlock)
+            self.block_writer_interface.write(block)
+            # TODO tener en cuenta para lecturas que la mayor cantidad de fd's abiertos por proceso es 1024
             self.blocks_added += 1
             self.last_block_hash = block.hash()
             self.adjustDifficulty()
@@ -41,8 +74,8 @@ def main(miners_queue, miners_coordinator_queue):
     while True:
         message = miners_queue.get()
         if block_appender.addBlock(message.block):
-            print(message.block)
-            print(message.miner_id)
+            # print(message.block)
+            # print(message.miner_id)
             miners_coordinator_queue.put(
                 (block_appender.last_block_hash,
                  block_appender.difficulty)

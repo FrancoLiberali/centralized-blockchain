@@ -6,11 +6,19 @@ import block_builder
 import miners_coordinator
 import miner
 import block_appender
+import storage_manager
 
 MAX_BLOCKS_ENQUEUED = 2048
 CANT_MINERS = 4
 
 def main():
+    # TODO sacar de aca tiene que ir en otro nodo
+    storage_manager_p = Process(target=storage_manager.main)
+    storage_manager_p.daemon = True
+    # Launch storage_manager_p() as a separate python process
+    storage_manager_p.start()
+    # fin TODO
+
     block_builder_to_miners_coordinator_queue = Queue(
         maxsize=MAX_BLOCKS_ENQUEUED
     )

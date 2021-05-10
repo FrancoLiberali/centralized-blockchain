@@ -5,7 +5,11 @@ import datetime
 INITIAL_LAST_HASH = 0
 INITIAL_DIFFICULTY = 1
 MAX_ENTRIES_AMOUNT = 5
-MAX_NONCE = sys.maxsize
+MAX_NONCE = sys.maxsize # TODO esto no va, no se como pero representa numeros mas grandes esta mierda de python
+
+STORAGE_MANAGER_HOST = 'localhost'    # TODO envvar
+STORAGE_MANAGER_PORT = 12345          # TODO envvar
+BLOCK_LEN_LEN_IN_BYTES = 4
 
 def isCryptographicPuzzleSolved(block, difficulty):
     return block.hash() < (2**256) / difficulty - 1
