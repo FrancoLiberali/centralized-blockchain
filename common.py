@@ -1,6 +1,5 @@
 import sys
 from hashlib import sha256
-import datetime
 
 INITIAL_LAST_HASH = 0
 INITIAL_DIFFICULTY = 1
@@ -9,7 +8,16 @@ MAX_NONCE = sys.maxsize # TODO esto no va, no se como pero representa numeros ma
 
 STORAGE_MANAGER_HOST = 'localhost'    # TODO envvar
 STORAGE_MANAGER_PORT = 12345          # TODO envvar
-BLOCK_LEN_LEN_IN_BYTES = 4
+BLOCK_SIZE_LEN_IN_BYTES = 4
+
+BLOCK_BUILDER_HOST = 'localhost'    # TODO envvar
+BLOCK_BUILDER_PORT = 12346  # TODO envvar
+
+MAX_ENTRY_SIZE_IN_BYTES = 65356
+CHUNCK_SIZE_LEN_IN_BYTES = 4
+BLOCK_BUILDER_RESPONSE_SIZE_IN_BYTES = 1
+BLOCK_BUILDER_OK_RESPONSE_CODE = 200
+BLOCK_BUILDER_SERVICE_UNAVAILABLE_RESPONSE_CODE = 503
 
 def isCryptographicPuzzleSolved(block, difficulty):
     return block.hash() < (2**256) / difficulty - 1
@@ -32,7 +40,7 @@ class Block:
         return int(sha256(repr(self.header).encode('utf-8') + repr(self.entries).encode('utf-8')).hexdigest(), 16)
 
     def __str__(self):
-        entries = ",".join(self.entries)
+        entries = ",\n".join(map(repr, self.entries))
         return """
         'block_hash': {0}
 

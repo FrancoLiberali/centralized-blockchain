@@ -8,8 +8,8 @@ import miner
 import block_appender
 import storage_manager
 
-MAX_BLOCKS_ENQUEUED = 2048
-CANT_MINERS = 4
+MAX_BLOCKS_ENQUEUED = 2048 # TODO envvar
+CANT_MINERS = 4 # TODO envvar
 
 def main():
     # TODO sacar de aca tiene que ir en otro nodo

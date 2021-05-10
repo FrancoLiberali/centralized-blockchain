@@ -1,5 +1,5 @@
 import socket
-from common import STORAGE_MANAGER_HOST, STORAGE_MANAGER_PORT, BLOCK_LEN_LEN_IN_BYTES
+from common import STORAGE_MANAGER_HOST, STORAGE_MANAGER_PORT, BLOCK_SIZE_LEN_IN_BYTES
 
 def main():
     serversocket = socket.socket(
@@ -11,8 +11,8 @@ def main():
     serversocket.listen(5) # TODO que poner en este numero y que pasa si se llena
     (clientsocket, _) = serversocket.accept()
     while True:
-        block_len_bytes = clientsocket.recv(BLOCK_LEN_LEN_IN_BYTES)
-        print(block_len_bytes)
+        block_len_bytes = clientsocket.recv(BLOCK_SIZE_LEN_IN_BYTES) # TODO falta acá reintentar podria no recibir todo junto
+        # print(block_len_bytes)
         block_len = int.from_bytes(
             block_len_bytes, byteorder='big', signed=False)
         block = clientsocket.recv(block_len)

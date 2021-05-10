@@ -1,7 +1,7 @@
 import datetime
 import socket
 import json
-from common import isCryptographicPuzzleSolved, INITIAL_DIFFICULTY, INITIAL_LAST_HASH, STORAGE_MANAGER_HOST, STORAGE_MANAGER_PORT, BLOCK_LEN_LEN_IN_BYTES
+from common import isCryptographicPuzzleSolved, INITIAL_DIFFICULTY, INITIAL_LAST_HASH, STORAGE_MANAGER_HOST, STORAGE_MANAGER_PORT, BLOCK_SIZE_LEN_IN_BYTES
 
 BLOCKS_ADDED_TO_ADJUST_DIFFICULTY = 2  # TODO poner 256
 TARGET_TIME_IN_SECONDS = 1 # TODO poner 12
@@ -33,7 +33,7 @@ class BlockWriterInterface:
             },
             "entries": block.entries
         }).encode('utf-8')
-        return len(block_in_json).to_bytes(BLOCK_LEN_LEN_IN_BYTES, byteorder='big', signed=False) + block_in_json
+        return len(block_in_json).to_bytes(BLOCK_SIZE_LEN_IN_BYTES, byteorder='big', signed=False) + block_in_json
 
 class BlockAppender:
     def __init__(self):
@@ -74,7 +74,7 @@ def main(miners_queue, miners_coordinator_queue):
     while True:
         message = miners_queue.get()
         if block_appender.addBlock(message.block):
-            # print(message.block)
+            print(message.block)
             # print(message.miner_id)
             miners_coordinator_queue.put(
                 (block_appender.last_block_hash,

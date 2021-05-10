@@ -1,6 +1,5 @@
 from threading import Thread, Lock
 import datetime
-import time
 
 from common import isCryptographicPuzzleSolved, MAX_NONCE
 
