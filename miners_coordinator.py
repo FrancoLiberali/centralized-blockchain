@@ -10,3 +10,4 @@ def main(block_builder_queue, miners_queues, block_appender_queue):
         for miner_queue in miners_queues:
             miner_queue.put(block_to_be_mined)
         last_hash, difficulty = block_appender_queue.get()
+        print(f"recibido: {hex(last_hash)}, {difficulty}")
