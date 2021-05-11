@@ -14,7 +14,7 @@ def main(miners_coordinator_queue):
     start_time = None
 
     while True:
-        # TODO meter el client adress en algun lado para poder saber quien lo mando?
+        # TODO DUDA meter el client adress en algun lado para poder saber quien lo mando?
         clientsocket = serversocket.accept()
         if not miners_coordinator_queue.full():
             chunk_size_bytes = clientsocket.recv(CHUNK_SIZE_LEN_IN_BYTES)
@@ -22,7 +22,7 @@ def main(miners_coordinator_queue):
             if chunk_size > MAX_ENTRY_SIZE_IN_BYTES:
                 respond_bad_request(clientsocket)
 
-            # TODO ver esto, limita que solo sean archivos de texto pero sino no lo puedo meter en el json
+            # TODO DUDAver esto, limita que solo sean archivos de texto pero sino no lo puedo meter en el json
             chunk = clientsocket.recv(chunk_size).decode("utf-8")
 
             # the start_time if from the acceptation of the first chunk to no to take into account
@@ -32,6 +32,7 @@ def main(miners_coordinator_queue):
             chunks.append(chunk)
 
             now = datetime.datetime.now()
+            # TODO DUDA problema: es necesario que llegue un nuevo chunck para esto, quizas hay que chequearlo de otra forma
             elapsed_time = (now - start_time).total_seconds()
 
             if len(chunks) == MAX_ENTRIES_AMOUNT or elapsed_time >= TARGET_TIME_IN_SECONDS:

@@ -41,9 +41,9 @@ def main():
             target=miner.main, args=(
                 (miner_id), (miner_queue), (miners_to_block_appender_queue))
         )
-        miner_p.daemon = True
+        miner_p.daemon = True # TODO investigar que es esto
         # Launch miner_p() as a separate python process
-        miner_p.start() # TODO investigar que es esto
+        miner_p.start()
         miners_queues.append(miner_queue)
 
     miners_coordinator_p = Process(

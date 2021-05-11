@@ -16,7 +16,6 @@ class Miner():
 
     def mine(self, block_appender_queue):
         while True:
-            # time.sleep(1)  # TODO borrar, solo para debugging
             with self.lock:
                 if self.block_to_be_mined != None:
                     self.block_to_be_mined.header['timestamp'] = datetime.datetime.now()

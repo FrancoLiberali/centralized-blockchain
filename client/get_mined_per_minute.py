@@ -15,6 +15,7 @@ from common.responses import RESPONSE_SIZE_IN_BYTES, \
 from common.safe_tcp_socket import SafeTCPSocket
 
 def main():
+    # TODO DUDA consultar si esto está bien o lo que se esperaba era que devuelva los bloques en si
     parser = argparse.ArgumentParser(
         description='Centralized Blockchain client for getting a block.')
     parser.add_argument('minute', metavar='<block_hash DD/MM/YYYY hh:mm>',

@@ -17,11 +17,11 @@ from common.responses import respond_not_found, respond_ok
 from common.safe_tcp_socket import SafeTCPSocket
 from common.block_interface import send_hash_and_block_json, recv_hash_and_block_json, recv_hash
 
-# TODO no es la solucion mas eficiente, lectores entre ellos pueden leer a la vez (problema de lector - consumidor)
+# TODO DUDA no es la solucion mas eficiente, lectores entre ellos pueden leer a la vez (problema de lector - consumidor)
 day_indexs_locks = {}
 
 def write_block(block_hash, block_json):
-    # TODO responder un ok?
+    # TODO DUDA responder un ok?
     with open(f"./blockchain_files/{hex(block_hash)}.json", "x") as block_file:
         block_file.write(block_json)
 
@@ -55,7 +55,7 @@ def write_block(block_hash, block_json):
 def writer_server():
     Path("./blockchain_files/minutes_index").mkdir(parents=True, exist_ok=True)
 
-    # TODO al parar el container quiere excribir el block 0x0.json y vacio, no se porque
+    # TODO DUDA al parar el container quiere excribir el block 0x0.json y vacio, no se porque. Hay que hacer un gracefully quit?
     serversocket = SafeTCPSocket.newServer(STORAGE_MANAGER_WRITE_PORT)
     block_appender_socket = serversocket.accept()
     while True:
@@ -97,7 +97,7 @@ def respond_mined_that_minute(sock, hash_list):
     sock.send(hash_list_json.encode('utf-8'))
 
 def get_mined_per_minute(client_socket):
-    # TODO el mail es los ayudantes por privado: guidosergio12@gmail.com, ezequiel.torresfeyuk@gmail.com, czarniana@gmail.com>,cerana@fi.uba.ar, pablodroca@gmail.com
+    # TODO enviar por mail a los ayudantes por privado: guidosergio12@gmail.com, ezequiel.torresfeyuk@gmail.com, czarniana@gmail.com>,cerana@fi.uba.ar, pablodroca@gmail.com
     minute = recv_minute(client_socket)
     # TODO codigo repetido con la escritura del indice
     day_string = minute.replace(hour=0, minute=0).strftime('%Y-%m-%d')
