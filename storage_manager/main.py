@@ -125,7 +125,7 @@ def mined_per_minute_server():
     server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_MINED_PER_MINUTE_PORT)
     while True:
         client_socket = server_socket.accept()
-        # TODO ver si esto tiene un timeout o algo asi que pasa si se llena esa cola
+        # TODO DUDA ver si esto tiene un timeout o algo asi que pasa si se llena esa cola
         thread_pool.submit(get_mined_per_minute, (client_socket))
 
 def main():
@@ -140,7 +140,7 @@ def main():
     server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_READ_PORT)
     while True:
         client_socket = server_socket.accept()
-        # TODO ver si esto tiene un timeout o algo asi que pasa si se llena esa cola
+        # TODO DUDA ver si esto tiene un timeout o algo asi que pasa si se llena esa cola
         read_thread_pool.submit(read_block, (client_socket))
 
 if __name__ == '__main__':
