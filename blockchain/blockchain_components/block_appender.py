@@ -4,40 +4,12 @@ from common.common import isCryptographicPuzzleSolved, \
     INITIAL_DIFFICULTY, \
     INITIAL_LAST_HASH, \
     STORAGE_MANAGER_HOST, \
-    STORAGE_MANAGER_PORT, \
-    BLOCK_SIZE_LEN_IN_BYTES, \
-    TARGET_TIME_IN_SECONDS, \
-    BLOCK_HASH_LEN_IN_BYTES
+    STORAGE_MANAGER_WRITE_PORT, \
+    TARGET_TIME_IN_SECONDS
 from common.safe_tcp_socket import SafeTCPSocket
+from common.block_interface import send_block_with_hash
 
 BLOCKS_ADDED_TO_ADJUST_DIFFICULTY = 2  # TODO poner 256
-
-class BlockWriterInterface:
-    def __init__(self):
-        self.socket = SafeTCPSocket.newClient(
-            STORAGE_MANAGER_HOST, STORAGE_MANAGER_PORT)
-
-    def write(self, block):
-        print(block)
-        self.socket.send(self._serialize_block_hash(block.hash()))
-        self.socket.send(self._serialize_block(block))
-
-    def _serialize_block_hash(self, block_hash):
-        return block_hash.to_bytes(BLOCK_HASH_LEN_IN_BYTES,
-                            byteorder='big', signed=False)
-
-    def _serialize_block(self, block):
-        block_in_json = json.dumps({
-            "header": {
-                'prev_hash': block.header['prev_hash'],
-                'nonce': block.header['nonce'],
-                'timestamp': block.header['timestamp'].timestamp(),
-                'difficulty': block.header['difficulty'],
-                'entries_amount': block.header['entries_amount'],
-            },
-            "entries": block.entries
-        }, indent=4, sort_keys=False).encode('utf-8')
-        return len(block_in_json).to_bytes(BLOCK_SIZE_LEN_IN_BYTES, byteorder='big', signed=False) + block_in_json
 
 class BlockAppender:
     def __init__(self):
@@ -45,12 +17,12 @@ class BlockAppender:
         self.last_block_hash = INITIAL_LAST_HASH
         self.start_time = datetime.datetime.now()
         self.blocks_added = 0
-        self.block_writer_interface = BlockWriterInterface()
+        self.socket = SafeTCPSocket.newClient(
+            STORAGE_MANAGER_HOST, STORAGE_MANAGER_WRITE_PORT)
 
     def addBlock(self, block):
         if (self.isBlockValid(block)):
-            self.block_writer_interface.write(block)
-            # TODO tener en cuenta para lecturas que la mayor cantidad de fd's abiertos por proceso es 1024
+            send_block_with_hash(self.socket, block)
             self.blocks_added += 1
             self.last_block_hash = block.hash()
             self.adjustDifficulty()

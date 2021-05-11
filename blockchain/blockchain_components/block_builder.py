@@ -2,14 +2,11 @@ import datetime
 from common.common import Block, \
     BLOCK_BUILDER_PORT, \
     CHUNK_SIZE_LEN_IN_BYTES,\
-    BLOCK_BUILDER_OK_RESPONSE_CODE, \
-    BLOCK_BUILDER_SERVICE_UNAVAILABLE_RESPONSE_CODE, \
-    BLOCK_BUILDER_RESPONSE_SIZE_IN_BYTES, \
     MAX_ENTRIES_AMOUNT, \
     TARGET_TIME_IN_SECONDS, \
-    MAX_ENTRY_SIZE_IN_BYTES, \
-    BLOCK_BUILDER_BAD_REQUEST_RESPONSE_CODE
+    MAX_ENTRY_SIZE_IN_BYTES
 from common.safe_tcp_socket import SafeTCPSocket
+from common.responses import respond_bad_request, respond_ok, respond_service_unavaliable
 
 def main(miners_coordinator_queue):
     serversocket = SafeTCPSocket.newServer(BLOCK_BUILDER_PORT)
@@ -18,7 +15,7 @@ def main(miners_coordinator_queue):
 
     while True:
         # TODO meter el client adress en algun lado para poder saber quien lo mando?
-        (clientsocket, _) = serversocket.accept()
+        clientsocket = serversocket.accept()
         if not miners_coordinator_queue.full():
             chunk_size_bytes = clientsocket.recv(CHUNK_SIZE_LEN_IN_BYTES)
             chunk_size = int.from_bytes(chunk_size_bytes, byteorder='big', signed=False)
@@ -45,18 +42,3 @@ def main(miners_coordinator_queue):
             respond_ok(clientsocket)
         else:
             respond_service_unavaliable(clientsocket)
-
-def respond_bad_request(clientsocket):
-    respond(clientsocket, BLOCK_BUILDER_BAD_REQUEST_RESPONSE_CODE)
-
-def respond_ok(clientsocket):
-    respond(clientsocket, BLOCK_BUILDER_OK_RESPONSE_CODE)
-
-def respond_service_unavaliable(clientsocket):
-    respond(clientsocket, BLOCK_BUILDER_SERVICE_UNAVAILABLE_RESPONSE_CODE)
-
-def respond(clientsocket, response_code):
-    response = response_code.to_bytes(
-        BLOCK_BUILDER_RESPONSE_SIZE_IN_BYTES, byteorder='big', signed=False)
-    clientsocket.send(response)
-    clientsocket.close()

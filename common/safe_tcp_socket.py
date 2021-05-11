@@ -3,9 +3,12 @@ import socket
 MAXIMUM_CHUNK_RECEIVE = 2048
 
 class SafeTCPSocket:
-    def __init__(self):
-        self.sock = socket.socket(
-            family=socket.AF_INET, type=socket.SOCK_STREAM)
+    def __init__(self, sock = None):
+        if sock == None:
+            self.sock = socket.socket(
+                family=socket.AF_INET, type=socket.SOCK_STREAM)
+        else:
+            self.sock = sock
 
     @classmethod
     def newServer(cls, port):
@@ -24,7 +27,8 @@ class SafeTCPSocket:
         return safe_socket
 
     def accept(self):
-        return self.sock.accept()
+        (client_socket, _) = self.sock.accept()
+        return SafeTCPSocket(client_socket)
 
     def send(self, msg):
         total_sent = 0
@@ -33,6 +37,13 @@ class SafeTCPSocket:
             if sent == 0:
                 raise RuntimeError("socket connection broken")
             total_sent = total_sent + sent
+
+    def send_int(self, int_to_send, len_in_bytes):
+        # TODO usar este codigo en varios lados que está repetido
+        int_bytes = int_to_send.to_bytes(
+            len_in_bytes, byteorder='big', signed=False
+        )
+        self.sock.send(int_bytes)
 
     def recv(self, msg_len):
         chunks = []
@@ -45,3 +56,11 @@ class SafeTCPSocket:
             chunks.append(chunk)
             bytes_recd = bytes_recd + len(chunk)
         return b''.join(chunks)
+
+    def recv_int(self, int_len_in_bytes):
+        # TODO usar este codigo en varios lados que está repetido
+        int_bytes = self.recv(int_len_in_bytes)
+        return int.from_bytes(int_bytes, byteorder='big', signed=False)
+
+    def close(self):
+        return self.sock.close()

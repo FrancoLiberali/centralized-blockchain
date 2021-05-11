@@ -8,19 +8,14 @@ MAX_NONCE = sys.maxsize # TODO esto no va, no se como pero representa numeros ma
 TARGET_TIME_IN_SECONDS = 1  # TODO poner 12
 
 STORAGE_MANAGER_HOST = 'storage_manager' # TODO envvar
-STORAGE_MANAGER_PORT = 12345          # TODO envvar
-BLOCK_SIZE_LEN_IN_BYTES = 4 # TODO verificar que en esto pueden entrar las max entries
-BLOCK_HASH_LEN_IN_BYTES = 32
+STORAGE_MANAGER_WRITE_PORT = 12345          # TODO envvar
+STORAGE_MANAGER_READ_PORT = 12346  # TODO envvar
 
 BLOCK_BUILDER_HOST = 'blockchain_server' # TODO envvar
-BLOCK_BUILDER_PORT = 12346  # TODO envvar
+BLOCK_BUILDER_PORT = 12344  # TODO envvar
 
 MAX_ENTRY_SIZE_IN_BYTES = 65356
 CHUNK_SIZE_LEN_IN_BYTES = 4
-BLOCK_BUILDER_RESPONSE_SIZE_IN_BYTES = 2
-BLOCK_BUILDER_OK_RESPONSE_CODE = 200
-BLOCK_BUILDER_BAD_REQUEST_RESPONSE_CODE = 400
-BLOCK_BUILDER_SERVICE_UNAVAILABLE_RESPONSE_CODE = 503
 
 def isCryptographicPuzzleSolved(block, difficulty):
     return block.hash() < (2**256) / difficulty - 1
