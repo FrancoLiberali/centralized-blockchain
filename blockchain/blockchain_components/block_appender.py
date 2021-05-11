@@ -1,28 +1,20 @@
 import datetime
-import socket
 import json
 from common.common import isCryptographicPuzzleSolved, INITIAL_DIFFICULTY, INITIAL_LAST_HASH, STORAGE_MANAGER_HOST, STORAGE_MANAGER_PORT, BLOCK_SIZE_LEN_IN_BYTES
+from common.safe_tcp_socket import SafeTCPSocket
 
 BLOCKS_ADDED_TO_ADJUST_DIFFICULTY = 2  # TODO poner 256
 TARGET_TIME_IN_SECONDS = 1 # TODO poner 12
 
 class BlockWriterInterface:
     def __init__(self):
-        self.socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-        self.socket.connect((STORAGE_MANAGER_HOST, STORAGE_MANAGER_PORT))
+        self.socket = SafeTCPSocket.newClient(
+            STORAGE_MANAGER_HOST, STORAGE_MANAGER_PORT)
 
     def write(self, block):
-        total_sent = 0
-        data = self.serialize_block(block)
-        # print(len(data))
-        # print(data)
-        while total_sent < len(data):
-            sent = self.socket.send(data[total_sent:])
-            if sent == 0:
-                raise RuntimeError("socket connection broken")
-            total_sent = total_sent + sent
+        self.socket.send(self._serialize_block(block))
 
-    def serialize_block(self, block):
+    def _serialize_block(self, block):
         block_in_json = json.dumps({
             "header": {
                 'prev_hash': block.header['prev_hash'],

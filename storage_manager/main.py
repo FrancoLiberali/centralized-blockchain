@@ -1,20 +1,14 @@
-import socket
-
 import sys
 sys.path.append(".")
 
 from common.common import STORAGE_MANAGER_PORT, BLOCK_SIZE_LEN_IN_BYTES
+from common.safe_tcp_socket import SafeTCPSocket
 
 def main():
-    serversocket = socket.socket(
-        family=socket.AF_INET, type=socket.SOCK_STREAM)
-    # bind the socket to a public host, and a well-known port
-    serversocket.bind(('', STORAGE_MANAGER_PORT))
-    # become a server socket
-    serversocket.listen(5) # TODO que poner en este numero y que pasa si se llena
+    serversocket = SafeTCPSocket.newServer(STORAGE_MANAGER_PORT)
     (clientsocket, _) = serversocket.accept()
     while True:
-        block_len_bytes = clientsocket.recv(BLOCK_SIZE_LEN_IN_BYTES) # TODO falta acá reintentar podria no recibir todo junto
+        block_len_bytes = clientsocket.recv(BLOCK_SIZE_LEN_IN_BYTES)
         # print(block_len_bytes)
         block_len = int.from_bytes(
             block_len_bytes, byteorder='big', signed=False)
