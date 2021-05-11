@@ -1,10 +1,15 @@
 import datetime
 import json
-from common.common import isCryptographicPuzzleSolved, INITIAL_DIFFICULTY, INITIAL_LAST_HASH, STORAGE_MANAGER_HOST, STORAGE_MANAGER_PORT, BLOCK_SIZE_LEN_IN_BYTES
+from common.common import isCryptographicPuzzleSolved, \
+    INITIAL_DIFFICULTY, \
+    INITIAL_LAST_HASH, \
+    STORAGE_MANAGER_HOST, \
+    STORAGE_MANAGER_PORT, \
+    BLOCK_SIZE_LEN_IN_BYTES, \
+    TARGET_TIME_IN_SECONDS
 from common.safe_tcp_socket import SafeTCPSocket
 
 BLOCKS_ADDED_TO_ADJUST_DIFFICULTY = 2  # TODO poner 256
-TARGET_TIME_IN_SECONDS = 1 # TODO poner 12
 
 class BlockWriterInterface:
     def __init__(self):
@@ -47,15 +52,15 @@ class BlockAppender:
 
     def adjustDifficulty(self):
         if self.blocks_added == BLOCKS_ADDED_TO_ADJUST_DIFFICULTY:
-            ahora = datetime.datetime.now()
-            elapsed_time = (ahora -
+            now = datetime.datetime.now()
+            elapsed_time = (now -
                             self.start_time).total_seconds()
 
             self.difficulty = self.difficulty * \
                 (TARGET_TIME_IN_SECONDS / elapsed_time) * \
                 BLOCKS_ADDED_TO_ADJUST_DIFFICULTY
 
-            self.start_time = ahora
+            self.start_time = now
             self.blocks_added = 0
 
     def isBlockValid(self, block):
