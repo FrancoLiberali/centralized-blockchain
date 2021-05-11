@@ -23,7 +23,7 @@ def send_hash_and_block_json(sock, block_hash, block_json):
 def _block_to_json(block):
     return json.dumps({
         "header": {
-            'prev_hash': block.header['prev_hash'],
+            'prev_hash': block.header['prev_hash'], # TODO poner en hexa?
             'nonce': block.header['nonce'],
             'timestamp': block.header['timestamp'].timestamp(),
             'difficulty': block.header['difficulty'],

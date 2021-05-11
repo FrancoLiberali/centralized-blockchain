@@ -1,6 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from threading import Thread
+from datetime import datetime
+import json
 
 import sys
 sys.path.append("..")
@@ -10,13 +12,35 @@ from common.responses import respond_not_found, respond_ok
 from common.safe_tcp_socket import SafeTCPSocket
 from common.block_interface import send_hash_and_block_json, recv_hash_and_block_json, recv_hash
 
-def write_block(block_hash, block):
+def write_block(block_hash, block_json):
     # TODO responder un ok?
     with open(f"./blockchain_files/{hex(block_hash)}.json", "x") as block_file:
-        block_file.write(block)
+        block_file.write(block_json)
+
+    block_dict = json.loads(block_json)
+    # TODO poner en variable global
+    mined_in = datetime.fromtimestamp(block_dict['header']['timestamp'])
+    minute = mined_in.replace(second=0, microsecond=0)
+    day_string = minute.replace(hour=0, minute=0).strftime('%Y-%m-%d')
+    day_index_file_path = f"./blockchain_files/minutes_index/{day_string}.json"
+
+    # TODO este necesita file locks porque se escribe y lee el mismo archivo
+    try:
+        with open(day_index_file_path, "r") as index_file:
+            day_index = json.load(index_file)
+    except FileNotFoundError:
+        day_index = {}
+
+    minute_key = repr(minute.timestamp())
+    mined_that_minute = day_index.get(minute_key, [])
+    mined_that_minute.append(hex(block_hash))
+    day_index[minute_key] = mined_that_minute
+
+    with open(day_index_file_path, "w") as index_file:
+        json.dump(day_index, index_file, sort_keys=True, indent=4)
 
 def writer_server():
-    Path("./blockchain_files").mkdir(parents=True, exist_ok=True)
+    Path("./blockchain_files/minutes_index").mkdir(parents=True, exist_ok=True)
 
     # TODO al parar el container quiere excribir el block 0x0.json y vacio, no se porque
     serversocket = SafeTCPSocket.newServer(STORAGE_MANAGER_WRITE_PORT)
