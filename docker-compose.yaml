@@ -9,6 +9,7 @@ services:
     working_dir: /storage_manager
     entrypoint: python3 main.py
     environment:
+      - TZ=America/Argentina/Buenos_Aires
       - PYTHONUNBUFFERED=1
     networks:
       - blockchain_net

@@ -36,7 +36,7 @@ def main():
             f"OK! The block has been saved in blockchain_files/{block_hash_response_hex}.json")
     elif response_code == NOT_FOUND_RESPONSE_CODE:
         print(
-            "Oops! Could not found block with hash {block_hash}. Remember that it should be ther hex representation starting with the '0x...'")
+            f"Oops! Could not found block with hash {block_hash}. Remember that it should be ther hex representation starting with the '0x...'")
     else:
         print("Oops! Unknown error")
     sock.close()

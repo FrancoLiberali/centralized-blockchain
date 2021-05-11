@@ -10,12 +10,17 @@ TARGET_TIME_IN_SECONDS = 1  # TODO poner 12
 STORAGE_MANAGER_HOST = 'storage_manager' # TODO envvar
 STORAGE_MANAGER_WRITE_PORT = 12345          # TODO envvar
 STORAGE_MANAGER_READ_PORT = 12346  # TODO envvar
+STORAGE_MANAGER_MINED_PER_MINUTE_PORT = 12347  # TODO envvar
 
 BLOCK_BUILDER_HOST = 'blockchain_server' # TODO envvar
 BLOCK_BUILDER_PORT = 12344  # TODO envvar
 
 MAX_ENTRY_SIZE_IN_BYTES = 65356
 CHUNK_SIZE_LEN_IN_BYTES = 4
+
+DATE_SIZE_LEN_IN_BYTES = 4
+DATE_STRING_FORMAT = '%d/%m/%Y %H:%M'
+HASH_LIST_SIZE_LEN_IN_BYTES = 4
 
 def isCryptographicPuzzleSolved(block, difficulty):
     return block.hash() < (2**256) / difficulty - 1

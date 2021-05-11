@@ -7,11 +7,17 @@ import json
 import sys
 sys.path.append("..")
 
-from common.common import STORAGE_MANAGER_WRITE_PORT, STORAGE_MANAGER_READ_PORT
+from common.common import STORAGE_MANAGER_WRITE_PORT, \
+    STORAGE_MANAGER_READ_PORT, \
+    STORAGE_MANAGER_MINED_PER_MINUTE_PORT, \
+    DATE_SIZE_LEN_IN_BYTES, \
+    DATE_STRING_FORMAT, \
+    HASH_LIST_SIZE_LEN_IN_BYTES
 from common.responses import respond_not_found, respond_ok
 from common.safe_tcp_socket import SafeTCPSocket
 from common.block_interface import send_hash_and_block_json, recv_hash_and_block_json, recv_hash
 
+# TODO no es la solucion mas eficiente, lectores entre ellos pueden leer a la vez (problema de lector - consumidor)
 day_indexs_locks = {}
 
 def write_block(block_hash, block_json):
@@ -70,15 +76,65 @@ def read_block(client_socket):
     except FileNotFoundError:
         respond_not_found(client_socket)
 
-READ_THREADS_AMOUNT = 512 # TODO tener en cuenta que el socket tambien es un fd abierto
+# i have choosen to use threads because it is allmost all i/o,
+# so paralelism between instructions is not needed,
+# and multithreading if ligther than multiprocessing
+READ_THREADS_AMOUNT = 64
+MINED_PER_MINUTE_THREADS_AMOUNT = 64
+
+def recv_minute(sock):
+    date_size = sock.recv_int(DATE_SIZE_LEN_IN_BYTES)
+    date_string = sock.recv(date_size).decode('utf-8')
+    return datetime.strptime(date_string, DATE_STRING_FORMAT)
+
+def respond_mined_that_minute(sock, hash_list):
+    respond_ok(sock, close_socket=False)
+    hash_list_json = json.dumps(hash_list, indent=4)
+    sock.send_int(
+        len(hash_list_json),
+        HASH_LIST_SIZE_LEN_IN_BYTES
+    )
+    sock.send(hash_list_json.encode('utf-8'))
+
+def get_mined_per_minute(client_socket):
+    # TODO el mail es los ayudantes por privado: guidosergio12@gmail.com, ezequiel.torresfeyuk@gmail.com, czarniana@gmail.com>,cerana@fi.uba.ar, pablodroca@gmail.com
+    minute = recv_minute(client_socket)
+    # TODO codigo repetido con la escritura del indice
+    day_string = minute.replace(hour=0, minute=0).strftime('%Y-%m-%d')
+    day_index_file_path = f"./blockchain_files/minutes_index/{day_string}.json"
+
+    lock = day_indexs_locks.get(day_string, None)
+    if not lock:
+        respond_not_found(client_socket)
+
+    with lock:
+        try:
+            with open(day_index_file_path, "r") as index_file:
+                day_index = json.load(index_file)
+                mined_that_minute = day_index.get(repr(minute.timestamp()), None)
+                if not mined_that_minute:
+                    respond_not_found(client_socket)
+                else:
+                    respond_mined_that_minute(client_socket, mined_that_minute)
+        except FileNotFoundError:
+            respond_not_found(client_socket)
+
+def mined_per_minute_server():
+    # TODO pasar a process pool, porque acá si hay procesamiento al levantar json's
+    thread_pool = ThreadPoolExecutor(MINED_PER_MINUTE_THREADS_AMOUNT)
+    server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_MINED_PER_MINUTE_PORT)
+    while True:
+        client_socket = server_socket.accept()
+        # TODO ver si esto tiene un timeout o algo asi que pasa si se llena esa cola
+        thread_pool.submit(get_mined_per_minute, (client_socket))
 
 def main():
     writers_t = Thread(target=writer_server)
     writers_t.start()
 
-    # i have choosen to use threads because it is allmost all i/o,
-    # so paralelism between instructions is not needed,
-    # and multithreading if ligther than multiprocessing
+    mined_per_minute_t = Thread(target=mined_per_minute_server)
+    mined_per_minute_t.start()
+
     read_thread_pool = ThreadPoolExecutor(READ_THREADS_AMOUNT)
 
     server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_READ_PORT)
