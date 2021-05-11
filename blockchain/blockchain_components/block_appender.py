@@ -9,7 +9,7 @@ from common.common import isCryptographicPuzzleSolved, \
 from common.safe_tcp_socket import SafeTCPSocket
 from common.block_interface import send_block_with_hash
 
-BLOCKS_ADDED_TO_ADJUST_DIFFICULTY = 2  # TODO poner 256
+BLOCKS_ADDED_TO_ADJUST_DIFFICULTY = 256
 
 class BlockAppender:
     def __init__(self):

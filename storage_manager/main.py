@@ -18,6 +18,14 @@ from common.responses import respond_not_found, respond_ok, respond_service_unav
 from common.safe_tcp_socket import SafeTCPSocket
 from common.block_interface import send_hash_and_block_json, recv_hash_and_block_json, recv_hash
 
+# i have choosen to use threads because it is allmost all i/o,
+# so paralelism between instructions is not needed,
+# and multithreading if ligther than multiprocessing
+READ_THREADS_AMOUNT = 64
+MAX_ENQUEUED_READS = 512
+MINED_PER_MINUTE_THREADS_AMOUNT = 64
+MAX_ENQUEUED_GET_MINED = 512
+
 # TODO DUDA no es la solucion mas eficiente, lectores entre ellos pueden leer a la vez (problema de lector - consumidor)
 day_indexs_locks = {}
 
@@ -62,16 +70,6 @@ def writer_server():
     while True:
         block_hash, block = recv_hash_and_block_json(block_appender_socket)
         write_block(block_hash, block)
-
-# i have choosen to use threads because it is allmost all i/o,
-# so paralelism between instructions is not needed,
-# and multithreading if ligther than multiprocessing
-READ_THREADS_AMOUNT = 64
-# READ_THREADS_AMOUNT = 1  # ONLY FOR DEBUGGING
-MAX_ENQUEUED_READS = 512
-# MAX_ENQUEUED_READS = 1 # ONLY FOR DEBUGGING
-MINED_PER_MINUTE_THREADS_AMOUNT = 64
-MAX_ENQUEUED_GET_MINED = 512
 
 def recv_minute(sock):
     date_size = sock.recv_int(DATE_SIZE_LEN_IN_BYTES)

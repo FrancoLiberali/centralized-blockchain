@@ -3,9 +3,9 @@ from hashlib import sha256
 
 INITIAL_LAST_HASH = 0
 INITIAL_DIFFICULTY = 1
-MAX_ENTRIES_AMOUNT = 5 # TODO poner 256
-MAX_NONCE = sys.maxsize # TODO esto no va, no se como pero representa numeros mas grandes esta mierda de python
-TARGET_TIME_IN_SECONDS = 1  # TODO poner 12
+MAX_ENTRIES_AMOUNT = 256
+MAX_NONCE = 2**(32*8) - 1 # max number posible in 32 bytes
+TARGET_TIME_IN_SECONDS = 12
 
 STORAGE_MANAGER_HOST = 'storage_manager' # TODO envvar
 STORAGE_MANAGER_WRITE_PORT = 12345          # TODO envvar

@@ -1,6 +1,6 @@
 import json
 
-# TODO verificar que en esto pueden entrar las max entries
+# 2**32 is bigger than 256*65356 (MAX_ENTRIES_AMOUNT*MAX_ENTRY_SIZE_IN_BYTES)
 BLOCK_SIZE_LEN_IN_BYTES = 4
 BLOCK_HASH_LEN_IN_BYTES = 32
 
