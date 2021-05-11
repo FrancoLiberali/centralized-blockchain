@@ -1,6 +1,5 @@
 import socket
 from common.common import Block, \
-    BLOCK_BUILDER_HOST, \
     BLOCK_BUILDER_PORT, \
     CHUNK_SIZE_LEN_IN_BYTES,\
     BLOCK_BUILDER_OK_RESPONSE_CODE, \
@@ -10,8 +9,7 @@ def main(queue):
     serversocket = socket.socket(
         family=socket.AF_INET, type=socket.SOCK_STREAM)
     # bind the socket to a public host, and a well-known port
-    serversocket.bind((BLOCK_BUILDER_HOST, BLOCK_BUILDER_PORT))
-    # TODO socket.gethostname()
+    serversocket.bind(('', BLOCK_BUILDER_PORT))
     # become a server socket
     # TODO que poner en este numero y que pasa si se llena
     serversocket.listen(5)
