@@ -6,7 +6,8 @@ services:
     volumes:
       - ./storage_manager:/storage_manager
       - ./common:/common
-    entrypoint: python3 /storage_manager/main.py
+    working_dir: /storage_manager
+    entrypoint: python3 main.py
     environment:
       - PYTHONUNBUFFERED=1
     networks:

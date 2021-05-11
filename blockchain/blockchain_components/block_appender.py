@@ -6,7 +6,8 @@ from common.common import isCryptographicPuzzleSolved, \
     STORAGE_MANAGER_HOST, \
     STORAGE_MANAGER_PORT, \
     BLOCK_SIZE_LEN_IN_BYTES, \
-    TARGET_TIME_IN_SECONDS
+    TARGET_TIME_IN_SECONDS, \
+    BLOCK_HASH_LEN_IN_BYTES
 from common.safe_tcp_socket import SafeTCPSocket
 
 BLOCKS_ADDED_TO_ADJUST_DIFFICULTY = 2  # TODO poner 256
@@ -17,7 +18,13 @@ class BlockWriterInterface:
             STORAGE_MANAGER_HOST, STORAGE_MANAGER_PORT)
 
     def write(self, block):
+        print(block)
+        self.socket.send(self._serialize_block_hash(block.hash()))
         self.socket.send(self._serialize_block(block))
+
+    def _serialize_block_hash(self, block_hash):
+        return block_hash.to_bytes(BLOCK_HASH_LEN_IN_BYTES,
+                            byteorder='big', signed=False)
 
     def _serialize_block(self, block):
         block_in_json = json.dumps({
@@ -29,7 +36,7 @@ class BlockWriterInterface:
                 'entries_amount': block.header['entries_amount'],
             },
             "entries": block.entries
-        }).encode('utf-8')
+        }, indent=4, sort_keys=False).encode('utf-8')
         return len(block_in_json).to_bytes(BLOCK_SIZE_LEN_IN_BYTES, byteorder='big', signed=False) + block_in_json
 
 class BlockAppender:
@@ -71,8 +78,6 @@ def main(miners_queue, miners_coordinator_queue):
     while True:
         message = miners_queue.get()
         if block_appender.addBlock(message.block):
-            print(message.block)
-            # print(message.miner_id)
             miners_coordinator_queue.put(
                 (block_appender.last_block_hash,
                  block_appender.difficulty)
