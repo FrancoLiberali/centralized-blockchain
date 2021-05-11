@@ -8,7 +8,8 @@ from common.common import STORAGE_MANAGER_HOST, \
     STORAGE_MANAGER_READ_PORT
 from common.responses import RESPONSE_SIZE_IN_BYTES, \
     OK_RESPONSE_CODE, \
-    NOT_FOUND_RESPONSE_CODE
+    NOT_FOUND_RESPONSE_CODE, \
+    SERVICE_UNAVAILABLE_RESPONSE_CODE
 from common.safe_tcp_socket import SafeTCPSocket
 from common.block_interface import send_hash, recv_hash_and_block_json
 
@@ -37,6 +38,8 @@ def main():
     elif response_code == NOT_FOUND_RESPONSE_CODE:
         print(
             f"Oops! Could not found block with hash {block_hash}. Remember that it should be ther hex representation starting with the '0x...'")
+    elif response_code == SERVICE_UNAVAILABLE_RESPONSE_CODE:
+        print("Oops! Too many data is being readed at this moment, please retry later")
     else:
         print("Oops! Unknown error")
     sock.close()

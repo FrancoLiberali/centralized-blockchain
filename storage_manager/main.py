@@ -3,6 +3,7 @@ from pathlib import Path
 from threading import Lock, Thread
 from datetime import datetime
 import json
+import time
 
 import sys
 sys.path.append("..")
@@ -13,7 +14,7 @@ from common.common import STORAGE_MANAGER_WRITE_PORT, \
     DATE_SIZE_LEN_IN_BYTES, \
     DATE_STRING_FORMAT, \
     HASH_LIST_SIZE_LEN_IN_BYTES
-from common.responses import respond_not_found, respond_ok
+from common.responses import respond_not_found, respond_ok, respond_service_unavaliable
 from common.safe_tcp_socket import SafeTCPSocket
 from common.block_interface import send_hash_and_block_json, recv_hash_and_block_json, recv_hash
 
@@ -62,25 +63,15 @@ def writer_server():
         block_hash, block = recv_hash_and_block_json(block_appender_socket)
         write_block(block_hash, block)
 
-def read_block(client_socket):
-    block_hash = recv_hash(client_socket)
-    try:
-        with open(f"./blockchain_files/{hex(block_hash)}.json", "r") as block_file:
-            respond_ok(client_socket, close_socket=False)
-            send_hash_and_block_json(
-                client_socket,
-                block_hash,
-                block_file.read()
-            )
-            client_socket.close()
-    except FileNotFoundError:
-        respond_not_found(client_socket)
-
 # i have choosen to use threads because it is allmost all i/o,
 # so paralelism between instructions is not needed,
 # and multithreading if ligther than multiprocessing
 READ_THREADS_AMOUNT = 64
+# READ_THREADS_AMOUNT = 1  # ONLY FOR DEBUGGING
+MAX_ENQUEUED_READS = 512
+# MAX_ENQUEUED_READS = 1 # ONLY FOR DEBUGGING
 MINED_PER_MINUTE_THREADS_AMOUNT = 64
+MAX_ENQUEUED_GET_MINED = 512
 
 def recv_minute(sock):
     date_size = sock.recv_int(DATE_SIZE_LEN_IN_BYTES)
@@ -125,8 +116,30 @@ def mined_per_minute_server():
     server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_MINED_PER_MINUTE_PORT)
     while True:
         client_socket = server_socket.accept()
-        # TODO DUDA ver si esto tiene un timeout o algo asi que pasa si se llena esa cola
-        thread_pool.submit(get_mined_per_minute, (client_socket))
+        enqueued = thread_pool._work_queue.qsize()
+        if enqueued > MAX_ENQUEUED_GET_MINED:
+            respond_service_unavaliable(client_socket)
+            continue
+        thread_pool.submit(
+            get_mined_per_minute,
+            client_socket
+        )
+
+
+def read_block(client_socket):
+    # time.sleep(10) # ONLY FOR DEBUGGING
+    block_hash = recv_hash(client_socket)
+    try:
+        with open(f"./blockchain_files/{hex(block_hash)}.json", "r") as block_file:
+            respond_ok(client_socket, close_socket=False)
+            send_hash_and_block_json(
+                client_socket,
+                block_hash,
+                block_file.read()
+            )
+            client_socket.close()
+    except FileNotFoundError:
+        respond_not_found(client_socket)
 
 def main():
     writers_t = Thread(target=writer_server)
@@ -140,8 +153,11 @@ def main():
     server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_READ_PORT)
     while True:
         client_socket = server_socket.accept()
-        # TODO DUDA ver si esto tiene un timeout o algo asi que pasa si se llena esa cola
-        read_thread_pool.submit(read_block, (client_socket))
+        enqueued = read_thread_pool._work_queue.qsize()
+        if enqueued > MAX_ENQUEUED_READS:
+            respond_service_unavaliable(client_socket)
+            continue
+        read_thread_pool.submit(read_block, client_socket)
 
 if __name__ == '__main__':
     main()
