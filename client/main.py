@@ -1,10 +1,13 @@
 import socket
 import argparse
 
-from common import BLOCK_BUILDER_HOST, \
+import sys
+sys.path.append(".")
+
+from common.common import BLOCK_BUILDER_HOST, \
     BLOCK_BUILDER_PORT, \
     MAX_ENTRY_SIZE_IN_BYTES, \
-    CHUNCK_SIZE_LEN_IN_BYTES, \
+    CHUNK_SIZE_LEN_IN_BYTES, \
     BLOCK_BUILDER_RESPONSE_SIZE_IN_BYTES, \
     BLOCK_BUILDER_OK_RESPONSE_CODE, \
     BLOCK_BUILDER_SERVICE_UNAVAILABLE_RESPONSE_CODE
@@ -23,7 +26,7 @@ def main():
     sock.connect((BLOCK_BUILDER_HOST, BLOCK_BUILDER_PORT))
 
     message = len(chunk).to_bytes(
-        CHUNCK_SIZE_LEN_IN_BYTES, byteorder='big', signed=False) + chunk
+        CHUNK_SIZE_LEN_IN_BYTES, byteorder='big', signed=False) + chunk
     total_sent = 0
     while total_sent < len(message):
         sent = sock.send(message[total_sent:])

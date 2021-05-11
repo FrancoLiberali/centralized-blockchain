@@ -1,0 +1,36 @@
+version: '3.5'
+services:
+  storage_manager:
+    container_name: storage_manager
+    image: python:3.8
+    volumes:
+      - ./storage_manager:/storage_manager
+      - ./common:/common
+    entrypoint: python3 /storage_manager/main.py
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - blockchain_net
+
+  blockchain_server:
+    container_name: blockchain_server
+    image: python:3.8
+    environment:
+      - TZ=America/Argentina/Buenos_Aires
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./blockchain:/blockchain
+      - ./common:/common
+    entrypoint: python3 /blockchain/main.py
+    networks:
+      - blockchain_net
+    depends_on:
+      - storage_manager
+
+networks:
+  blockchain_net:
+    name: blockchain_net
+    ipam:
+      driver: default
+      config:
+        - subnet: 173.25.125.0/24

@@ -1,8 +1,8 @@
 import socket
-from common import Block, \
+from common.common import Block, \
     BLOCK_BUILDER_HOST, \
     BLOCK_BUILDER_PORT, \
-    CHUNCK_SIZE_LEN_IN_BYTES,\
+    CHUNK_SIZE_LEN_IN_BYTES,\
     BLOCK_BUILDER_OK_RESPONSE_CODE, \
     BLOCK_BUILDER_RESPONSE_SIZE_IN_BYTES
 
@@ -19,7 +19,7 @@ def main(queue):
         # TODO meter el client adress en algun lado para poder saber quien lo mando?
         (clientsocket, _) = serversocket.accept()
         # TODO falta acá reintentar podria no recibir todo junto
-        chunk_size_bytes = clientsocket.recv(CHUNCK_SIZE_LEN_IN_BYTES)
+        chunk_size_bytes = clientsocket.recv(CHUNK_SIZE_LEN_IN_BYTES)
         chunk_size = int.from_bytes(
             chunk_size_bytes, byteorder='big', signed=False)
         # TODO ver esto, limita que solo sean archivos de texto pero sino no lo puedo meter en el json

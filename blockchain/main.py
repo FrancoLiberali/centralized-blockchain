@@ -1,24 +1,13 @@
 from multiprocessing import Process, Queue
-import time
 import sys
+sys.path.append(".")
 
-import block_builder
-import miners_coordinator
-import miner
-import block_appender
-import storage_manager
+from blockchain_components import block_builder, miners_coordinator, miner, block_appender
 
 MAX_BLOCKS_ENQUEUED = 2048 # TODO envvar
 CANT_MINERS = 4 # TODO envvar
 
 def main():
-    # TODO sacar de aca tiene que ir en otro nodo
-    storage_manager_p = Process(target=storage_manager.main)
-    storage_manager_p.daemon = True
-    # Launch storage_manager_p() as a separate python process
-    storage_manager_p.start()
-    # fin TODO
-
     block_builder_to_miners_coordinator_queue = Queue(
         maxsize=MAX_BLOCKS_ENQUEUED
     )

@@ -1,4 +1,4 @@
-from common import INITIAL_DIFFICULTY, INITIAL_LAST_HASH, MAX_NONCE
+from common.common import INITIAL_DIFFICULTY, INITIAL_LAST_HASH, MAX_NONCE
 import copy
 
 def main(block_builder_queue, miners_queues, block_appender_queue):

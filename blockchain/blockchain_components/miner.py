@@ -1,7 +1,7 @@
 from threading import Thread, Lock
 import datetime
 
-from common import isCryptographicPuzzleSolved, MAX_NONCE
+from common.common import isCryptographicPuzzleSolved, MAX_NONCE
 
 class BlockMinedMessage:
     def __init__(self, miner_id, block):
@@ -32,14 +32,14 @@ class Miner():
 
 def main(id, coordinator_queue, block_appender_queue):
     miner = Miner(id)
-
-    t = Thread(target=miner.mine, args=((block_appender_queue),))
-    t.start()
+    t = None
 
     while True:
         new_block = coordinator_queue.get()
         with miner.lock:
             miner.block_to_be_mined = new_block
-            if not t.is_alive(): # sended a block to the block appender an finished
+            # not t: first block received
+            # not t.is_alive(): sended a block to the block appender and finished
+            if not t or not t.is_alive(): 
                 t = Thread(target=miner.mine, args=((block_appender_queue),))
                 t.start()
