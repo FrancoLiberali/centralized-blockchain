@@ -30,7 +30,7 @@ MAX_ENQUEUED_GET_MINED = 512
 day_indexs_locks = {}
 
 def write_block(block_hash, block_json):
-    # TODO DUDA responder un ok?
+    # TODO DUDA responder un ok? No es neceserio, pero consultar en foro si quiero  
     with open(f"./blockchain_files/{hex(block_hash)}.json", "x") as block_file:
         block_file.write(block_json)
 
@@ -61,6 +61,7 @@ def write_block(block_hash, block_json):
         with open(day_index_file_path, "w") as index_file:
             json.dump(day_index, index_file, sort_keys=True, indent=4)
 
+
 def writer_server():
     Path("./blockchain_files/minutes_index").mkdir(parents=True, exist_ok=True)
 
@@ -85,8 +86,8 @@ def respond_mined_that_minute(sock, hash_list):
     )
     sock.send(hash_list_json.encode('utf-8'))
 
+
 def get_mined_per_minute(client_socket):
-    # TODO enviar por mail a los ayudantes por privado: guidosergio12@gmail.com, ezequiel.torresfeyuk@gmail.com, czarniana@gmail.com>,cerana@fi.uba.ar, pablodroca@gmail.com
     minute = recv_minute(client_socket)
     # TODO codigo repetido con la escritura del indice
     day_string = minute.replace(hour=0, minute=0).strftime('%Y-%m-%d')
