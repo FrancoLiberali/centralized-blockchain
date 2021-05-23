@@ -3,9 +3,9 @@ import sys
 sys.path.append(".")
 
 from blockchain_components import block_builder, miners_coordinator, miner, block_appender
+from common.common import MINERS_AMOUNT
 
 MAX_BLOCKS_ENQUEUED = 2048 # TODO envvar
-CANT_MINERS = 4 # TODO envvar
 
 def main():
     block_builder_to_miners_coordinator_queue = Queue(
@@ -18,8 +18,6 @@ def main():
             (block_builder_to_miners_coordinator_queue),
         )
     )
-    block_builder_p.daemon = True
-    # Launch block_builder_p() as a separate python process
     block_builder_p.start()
 
     miners_to_block_appender_queue = Queue()
@@ -30,19 +28,15 @@ def main():
             (block_appender_to_miners_coordinator_queue)
         )
     )
-    block_appender_p.daemon = True
-    # Launch block_appender_p() as a separate python process
     block_appender_p.start()
 
     miners_queues = []
-    for miner_id in range(0, CANT_MINERS):
+    for miner_id in range(0, MINERS_AMOUNT):
         miner_queue = Queue()
         miner_p = Process(
             target=miner.main, args=(
                 (miner_id), (miner_queue), (miners_to_block_appender_queue))
         )
-        miner_p.daemon = True # TODO investigar que es esto
-        # Launch miner_p() as a separate python process
         miner_p.start()
         miners_queues.append(miner_queue)
 
@@ -53,8 +47,6 @@ def main():
             (block_appender_to_miners_coordinator_queue)
         )
     )
-    miners_coordinator_p.daemon = True
-    # Launch miners_coordinator_p() as a separate python process
     miners_coordinator_p.start()
 
     miners_coordinator_p.join()

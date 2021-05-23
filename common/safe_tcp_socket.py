@@ -1,6 +1,8 @@
 import socket
 
 MAXIMUM_CHUNK_RECEIVE = 2048
+STRING_ENCODING = 'utf-8'
+INT_BYTE_ORDER = 'big'
 
 class SafeTCPSocket:
     def __init__(self, sock = None):
@@ -41,9 +43,18 @@ class SafeTCPSocket:
     def send_int(self, int_to_send, len_in_bytes):
         # TODO usar este codigo en varios lados que está repetido
         int_bytes = int_to_send.to_bytes(
-            len_in_bytes, byteorder='big', signed=False
+            len_in_bytes, byteorder=INT_BYTE_ORDER, signed=False
         )
         self.sock.send(int_bytes)
+
+    def send_string_with_len_prepended(self, string, string_size_len_in_bytes):
+        # TODO usar este codigo en varios lados que está repetido
+        encoded_string = string.encode(STRING_ENCODING)
+        self.send_int(
+            len(encoded_string),
+            string_size_len_in_bytes
+        )
+        self.send(encoded_string)
 
     def recv(self, msg_len):
         chunks = []
@@ -60,7 +71,12 @@ class SafeTCPSocket:
     def recv_int(self, int_len_in_bytes):
         # TODO usar este codigo en varios lados que está repetido
         int_bytes = self.recv(int_len_in_bytes)
-        return int.from_bytes(int_bytes, byteorder='big', signed=False)
+        return int.from_bytes(int_bytes, byteorder=INT_BYTE_ORDER, signed=False)
+
+    def recv_string_with_len_prepended(self, string_size_len_in_bytes):
+        # TODO usar este codigo en varios lados que está repetido
+        string_len = self.recv_int(string_size_len_in_bytes)
+        return self.recv(string_len).decode(STRING_ENCODING)
 
     def close(self):
         return self.sock.close()
