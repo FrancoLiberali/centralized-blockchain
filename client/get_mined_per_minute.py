@@ -34,8 +34,7 @@ def main():
     sock = SafeTCPSocket.newClient(
         STORAGE_MANAGER_HOST, STORAGE_MANAGER_MINED_PER_MINUTE_PORT)
 
-    sock.send_int(len(minute_string), DATE_SIZE_LEN_IN_BYTES)
-    sock.send(minute_string.encode('utf-8'))
+    sock.send_string_with_len_prepended(minute_string, DATE_SIZE_LEN_IN_BYTES)
 
     response_code = sock.recv_int(RESPONSE_SIZE_IN_BYTES)
     if response_code == OK_RESPONSE_CODE:

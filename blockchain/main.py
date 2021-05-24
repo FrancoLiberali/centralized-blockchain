@@ -33,14 +33,16 @@ def main():
     block_appender_p.start()
 
     miners_queues = []
+    miners = []
     for miner_id in range(0, MINERS_AMOUNT):
         miner_queue = Queue()
         miner_p = Process(
             target=miner.main, args=(
                 (miner_id), (miner_queue), (miners_to_block_appender_queue))
         )
-        miner_p.start()
         miners_queues.append(miner_queue)
+        miners.append(miner_p)
+        miner_p.start()
 
     miners_coordinator_p = Process(
         target=miners_coordinator.main, args=(
@@ -52,7 +54,8 @@ def main():
     miners_coordinator_p.start()
 
     miners_coordinator_p.join()
-    # TODO join miners
+    for miner_p in miners:
+        miner_p.join()
     block_appender_p.join()
     block_builder_p.join()
 

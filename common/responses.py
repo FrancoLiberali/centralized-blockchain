@@ -17,7 +17,6 @@ def respond_service_unavaliable(clientsocket):
     respond(clientsocket, SERVICE_UNAVAILABLE_RESPONSE_CODE)
 
 def respond(clientsocket, response_code, close_socket=True):
-    response = response_code.to_bytes(RESPONSE_SIZE_IN_BYTES, byteorder='big', signed=False)
-    clientsocket.send(response)
+    clientsocket.send_int(response_code, RESPONSE_SIZE_IN_BYTES)
     if close_socket:
         clientsocket.close()

@@ -41,14 +41,12 @@ class SafeTCPSocket:
             total_sent = total_sent + sent
 
     def send_int(self, int_to_send, len_in_bytes):
-        # TODO usar este codigo en varios lados que está repetido
         int_bytes = int_to_send.to_bytes(
             len_in_bytes, byteorder=INT_BYTE_ORDER, signed=False
         )
         self.sock.send(int_bytes)
 
     def send_string_with_len_prepended(self, string, string_size_len_in_bytes):
-        # TODO usar este codigo en varios lados que está repetido
         encoded_string = string.encode(STRING_ENCODING)
         self.send_int(
             len(encoded_string),
@@ -69,14 +67,15 @@ class SafeTCPSocket:
         return b''.join(chunks)
 
     def recv_int(self, int_len_in_bytes):
-        # TODO usar este codigo en varios lados que está repetido
         int_bytes = self.recv(int_len_in_bytes)
         return int.from_bytes(int_bytes, byteorder=INT_BYTE_ORDER, signed=False)
 
+    def recv_string(self, string_len_in_bytes):
+        return self.recv(string_len_in_bytes).decode(STRING_ENCODING)
+
     def recv_string_with_len_prepended(self, string_size_len_in_bytes):
-        # TODO usar este codigo en varios lados que está repetido
         string_len = self.recv_int(string_size_len_in_bytes)
-        return self.recv(string_len).decode(STRING_ENCODING)
+        return self.recv_string(string_len)
 
     def close(self):
         return self.sock.close()

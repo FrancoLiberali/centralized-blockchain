@@ -17,8 +17,7 @@ def send_block_with_hash(sock, block):
 
 def send_hash_and_block_json(sock, block_hash, block_json):
     send_hash(sock, block_hash)
-    sock.send_int(len(block_json), BLOCK_SIZE_LEN_IN_BYTES)
-    sock.send(block_json.encode('utf-8'))
+    sock.send_string_with_len_prepended(block_json, BLOCK_SIZE_LEN_IN_BYTES)
 
 def _block_to_json(block):
     return json.dumps({
@@ -38,6 +37,5 @@ def recv_hash(sock):
 def recv_hash_and_block_json(sock):
     block_hash = recv_hash(sock)
 
-    block_len = sock.recv_int(BLOCK_SIZE_LEN_IN_BYTES)
-    block = sock.recv(block_len).decode('utf-8')
+    block = sock.recv_string_with_len_prepended(BLOCK_SIZE_LEN_IN_BYTES)
     return (block_hash, block)

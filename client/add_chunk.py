@@ -18,19 +18,17 @@ def main():
     parser.add_argument('input_file_path', metavar='<input_file>', type=argparse.FileType('rb'), help='path to the file to read a chunck')
 
     args = parser.parse_args()
-    
+
     input = args.input_file_path
     chunk = input.read(MAX_ENTRY_SIZE_IN_BYTES)
     input.close()
 
     sock = SafeTCPSocket.newClient(BLOCK_BUILDER_HOST, BLOCK_BUILDER_PORT)
 
-    message = len(chunk).to_bytes(
-        CHUNK_SIZE_LEN_IN_BYTES, byteorder='big', signed=False) + chunk
-    sock.send(message)
+    sock.send_int(len(chunk), CHUNK_SIZE_LEN_IN_BYTES)
+    sock.send(chunk)
 
-    response = sock.recv(RESPONSE_SIZE_IN_BYTES)
-    response_code = int.from_bytes(response, byteorder='big', signed=False)
+    response_code = sock.recv_int(RESPONSE_SIZE_IN_BYTES)
     if response_code == OK_RESPONSE_CODE:
         print("OK! Your chunck will be mined and added to the blockchain")
     elif response_code == SERVICE_UNAVAILABLE_RESPONSE_CODE:

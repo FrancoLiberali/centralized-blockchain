@@ -80,8 +80,7 @@ def writer_server():
         write_block(block_hash, block)
 
 def recv_minute(sock):
-    date_size = sock.recv_int(DATE_SIZE_LEN_IN_BYTES)
-    date_string = sock.recv(date_size).decode('utf-8')
+    date_string = sock.recv_string_with_len_prepended(DATE_SIZE_LEN_IN_BYTES)
     return datetime.strptime(date_string, DATE_STRING_FORMAT)
 
 def respond_mined_that_minute(client_socket, hash_list):

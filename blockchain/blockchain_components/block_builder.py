@@ -20,13 +20,11 @@ def main(miners_coordinator_queue):
         # TODO DUDA meter el client adress en algun lado para poder saber quien lo mando? Podria pero no es obligatorio
         clientsocket, client_adress = serversocket.accept()
         if not miners_coordinator_queue.full():
-            chunk_size_bytes = clientsocket.recv(CHUNK_SIZE_LEN_IN_BYTES)
-            chunk_size = int.from_bytes(chunk_size_bytes, byteorder='big', signed=False)
+            chunk_size = clientsocket.recv_int(CHUNK_SIZE_LEN_IN_BYTES)
             if chunk_size > MAX_ENTRY_SIZE_IN_BYTES:
                 respond_bad_request(clientsocket) # TODO aclarar
 
-            # TODO DUDA ver esto, limita que solo sean archivos de texto pero sino no lo puedo meter en el json. Consultar en foro
-            chunk = clientsocket.recv(chunk_size).decode("utf-8")
+            chunk = clientsocket.recv_string(chunk_size)
             logger.info(f"Received chuck from client {client_adress}: {chunk}")
 
             # the start_time if from the acceptation of the first chunk to no to take into account
