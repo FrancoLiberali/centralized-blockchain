@@ -1,5 +1,4 @@
 from threading import Thread, Lock
-import datetime
 
 from common.common import isCryptographicPuzzleSolved, MAX_NONCE
 from common.logger import Logger
@@ -20,7 +19,6 @@ class Miner():
         while True:
             with self.lock:
                 if self.block_to_be_mined != None:
-                    self.block_to_be_mined.header['timestamp'] = datetime.datetime.now()
                     if isCryptographicPuzzleSolved(self.block_to_be_mined, self.block_to_be_mined.header['difficulty']):
                         self.logger.info(
                             f"Cryptografic puzzle solver with nonce: {self.block_to_be_mined.header['nonce']}"
