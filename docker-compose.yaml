@@ -5,9 +5,8 @@ services:
     image: python:3.8
     volumes:
       - ./storage_manager:/storage_manager
-      - ./common:/common
-    working_dir: /storage_manager
-    entrypoint: python3 main.py
+      - ./common:/storage_manager/common
+    entrypoint: python3 /storage_manager/main.py
     environment:
       - TZ=America/Argentina/Buenos_Aires
       - PYTHONUNBUFFERED=1
@@ -22,7 +21,7 @@ services:
       - PYTHONUNBUFFERED=1
     volumes:
       - ./blockchain:/blockchain
-      - ./common:/common
+      - ./common:/blockchain/common
     entrypoint: python3 /blockchain/main.py
     networks:
       - blockchain_net

@@ -1,14 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor
-from logging import Logger
-import multiprocessing
-from pathlib import Path
-from threading import Lock, Thread
 from datetime import datetime
 import json
-import time
-
-import sys
-sys.path.append("..")
+from logging import Logger
+from pathlib import Path
+from threading import Lock, Thread
 
 from common.block_interface import send_hash_and_block_json, recv_hash_and_block_json, recv_hash
 from common.common import STORAGE_MANAGER_WRITE_PORT, \
@@ -17,9 +12,9 @@ from common.common import STORAGE_MANAGER_WRITE_PORT, \
     DATE_SIZE_LEN_IN_BYTES, \
     DATE_STRING_FORMAT, \
     HASH_LIST_SIZE_LEN_IN_BYTES
+from common.logger import Logger, initialize_log
 from common.responses import respond_not_found, respond_ok, respond_service_unavaliable
 from common.safe_tcp_socket import SafeTCPSocket
-from common.logger import Logger, initialize_log
 
 
 # i have choosen to use threads because it is allmost all i/o,

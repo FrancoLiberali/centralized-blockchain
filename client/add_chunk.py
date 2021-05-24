@@ -1,8 +1,5 @@
 import argparse
 
-import sys
-sys.path.append(".")
-
 from common.common import BLOCK_BUILDER_HOST, \
     BLOCK_BUILDER_PORT, \
     MAX_ENTRY_SIZE_IN_BYTES, \
@@ -10,7 +7,6 @@ from common.common import BLOCK_BUILDER_HOST, \
 from common.responses import RESPONSE_SIZE_IN_BYTES, \
     OK_RESPONSE_CODE, \
     SERVICE_UNAVAILABLE_RESPONSE_CODE
-
 from common.safe_tcp_socket import SafeTCPSocket
 
 def main():

@@ -1,6 +1,4 @@
 from multiprocessing import Process, Queue
-import sys
-sys.path.append(".")
 
 from blockchain_components import block_builder, miners_coordinator, miner, block_appender
 from common.common import MINERS_AMOUNT

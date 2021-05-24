@@ -1,9 +1,6 @@
 import argparse
 
-import sys
-sys.path.append(".")
-
-
+from common.block_interface import send_hash, recv_hash_and_block_json
 from common.common import STORAGE_MANAGER_HOST, \
     STORAGE_MANAGER_READ_PORT
 from common.responses import RESPONSE_SIZE_IN_BYTES, \
@@ -11,7 +8,6 @@ from common.responses import RESPONSE_SIZE_IN_BYTES, \
     NOT_FOUND_RESPONSE_CODE, \
     SERVICE_UNAVAILABLE_RESPONSE_CODE
 from common.safe_tcp_socket import SafeTCPSocket
-from common.block_interface import send_hash, recv_hash_and_block_json
 
 def main():
     parser = argparse.ArgumentParser(

@@ -1,10 +1,7 @@
 import argparse
-from common.block_interface import recv_hash_and_block_json
 from datetime import datetime
 
-import sys
-sys.path.append(".")
-
+from common.block_interface import recv_hash_and_block_json
 from common.common import STORAGE_MANAGER_HOST, \
     STORAGE_MANAGER_MINED_PER_MINUTE_PORT, \
     DATE_SIZE_LEN_IN_BYTES, \

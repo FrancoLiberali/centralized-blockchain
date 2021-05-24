@@ -1,8 +1,5 @@
 import json
 
-import sys
-sys.path.append(".")
-
 from common.common import BLOCK_APPENDER_HOST, \
     BLOCK_APPENDER_PORT, \
     MINED_PER_MINER_SIZE_LEN_IN_BYTES, \
