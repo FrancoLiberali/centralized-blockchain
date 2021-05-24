@@ -1,4 +1,5 @@
 import argparse
+from common.block_interface import recv_hash_and_block_json
 from datetime import datetime
 
 import sys
@@ -38,10 +39,12 @@ def main():
 
     response_code = sock.recv_int(RESPONSE_SIZE_IN_BYTES)
     if response_code == OK_RESPONSE_CODE:
-        hash_list_len = sock.recv_int(HASH_LIST_SIZE_LEN_IN_BYTES)
-        hash_list = sock.recv(hash_list_len).decode('utf-8')
-        print(
-            f"OK! The block that has been mined in minute {minute_string} are:\n{hash_list}")
+        block_amount = sock.recv_int(HASH_LIST_SIZE_LEN_IN_BYTES)
+        print(f"{block_amount} blocks mined in {minute_string}:")
+        for i in range(0, block_amount):
+            block_hash, block_json = recv_hash_and_block_json(sock)
+            print(f"\t{i + 1} - {hex(block_hash)}")
+            print(f"{block_json}")
     elif response_code == NOT_FOUND_RESPONSE_CODE:
         print(f"No blocks have been mined in minute {minute_string}")
     elif response_code == SERVICE_UNAVAILABLE_RESPONSE_CODE:

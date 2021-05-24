@@ -84,14 +84,19 @@ def recv_minute(sock):
     date_string = sock.recv(date_size).decode('utf-8')
     return datetime.strptime(date_string, DATE_STRING_FORMAT)
 
-def respond_mined_that_minute(sock, hash_list):
-    respond_ok(sock, close_socket=False)
-    hash_list_json = json.dumps(hash_list, indent=4)
-    sock.send_int(
-        len(hash_list_json),
-        HASH_LIST_SIZE_LEN_IN_BYTES
-    )
-    sock.send(hash_list_json.encode('utf-8'))
+def respond_mined_that_minute(client_socket, hash_list):
+    # TODO aca seguro que no imprime las excepciones
+    respond_ok(client_socket, close_socket=False)
+    client_socket.send_int(len(hash_list),
+                           HASH_LIST_SIZE_LEN_IN_BYTES)
+    for block_hash in hash_list:
+        block_json = read_block(block_hash)
+        send_hash_and_block_json(
+            client_socket,
+            int(block_hash, 16),
+            block_json
+        )
+    client_socket.close()
 
 def get_mined_per_minute(client_socket, client_address):
     minute = recv_minute(client_socket)
@@ -133,21 +138,30 @@ def mined_per_minute_server():
             client_address
         )
 
+def read_block(block_hash):
+    try:
+        with open(f"./blockchain_files/{block_hash}.json", "r") as block_file:
+            return block_file.read()
+    except FileNotFoundError as e:
+        logger.info(f"Block {block_hash} not found")
+        raise e
 
-def read_block(client_socket, client_address):
+
+def reply_block(client_socket, client_address):
     # TODO la carga maxima de esto creo que está buggeada, me saltaba error
     block_hash = recv_hash(client_socket)
     logger.info(f"Received request of block {hex(block_hash)} from client {client_address}")
     try:
-        with open(f"./blockchain_files/{hex(block_hash)}.json", "r") as block_file:
-            respond_ok(client_socket, close_socket=False)
-            send_hash_and_block_json(
-                client_socket,
-                block_hash,
-                block_file.read()
-            )
-            logger.info(f"Block {hex(block_hash)} sended to client {client_address}")
-            client_socket.close()
+        block_json = read_block(hex(block_hash))
+        respond_ok(client_socket, close_socket=False)
+        send_hash_and_block_json(
+            client_socket,
+            block_hash,
+            block_json
+        )
+        logger.info(
+            f"Block {hex(block_hash)} sended to client {client_address}")
+        client_socket.close()
     except FileNotFoundError:
         logger.info(f"Block {hex(block_hash)} not found")
         respond_not_found(client_socket)
@@ -169,7 +183,7 @@ def main():
         if enqueued > MAX_ENQUEUED_READS:
             respond_service_unavaliable(client_socket)
             continue
-        read_thread_pool.submit(read_block, client_socket, client_address)
+        read_thread_pool.submit(reply_block, client_socket, client_address)
 
 if __name__ == '__main__':
     main()
