@@ -4,10 +4,12 @@ sys.path.append(".")
 
 from blockchain_components import block_builder, miners_coordinator, miner, block_appender
 from common.common import MINERS_AMOUNT
+from common.logger import initialize_log
 
 MAX_BLOCKS_ENQUEUED = 2048 # TODO envvar
 
 def main():
+    initialize_log()
     block_builder_to_miners_coordinator_queue = Queue(
         maxsize=MAX_BLOCKS_ENQUEUED
     )

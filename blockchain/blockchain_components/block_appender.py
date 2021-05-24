@@ -16,6 +16,7 @@ from common.common import isCryptographicPuzzleSolved, \
     MINED_PER_MINER_SIZE_LEN_IN_BYTES
 from common.safe_tcp_socket import SafeTCPSocket
 from common.block_interface import send_block_with_hash
+from common.logger import Logger
 
 BLOCKS_ADDED_TO_ADJUST_DIFFICULTY = 256
 
@@ -54,6 +55,8 @@ class BlockAppender:
         return block.header['prev_hash'] == self.last_block_hash and isCryptographicPuzzleSolved(block, self.difficulty)
 
 def main(miners_queue, miners_coordinator_queue):
+    # TODO desde que saque lo de deamon los procesos ya no me muestran las excepciones
+    logger = Logger(f"Block appender")
     for miner_id in range(0, MINERS_AMOUNT):
         mined_per_miner[miner_id] = [0, 0]
     mined_per_miner_server_p = Process(
@@ -64,13 +67,23 @@ def main(miners_queue, miners_coordinator_queue):
     block_appender = BlockAppender()
     while True:
         message = miners_queue.get()
+        block_hash_hex = hex(message.block.hash())
+        logger.info(
+            f"Received from Miner {message.miner_id} block to be added: {block_hash_hex}"
+        )
         if block_appender.addBlock(message.block):
+            logger.info(
+                f"Block received from Miner {message.miner_id} added to blockchain sucessfully: {message.block}"
+            )
             add_successfull_mining(message.miner_id)
             miners_coordinator_queue.put(
                 (block_appender.last_block_hash,
                  block_appender.difficulty)
             )
         else:
+            logger.info(
+                f"Block {block_hash_hex} received from Miner {message.miner_id} couldn't be added to blockchain"
+            )
             add_wrong_mining(message.miner_id)
 
 
@@ -86,11 +99,9 @@ def add_wrong_mining(miner_id):
 
 def add_mining(miner_id, mining_type):
     mined = mined_per_miner.get(miner_id, {})
-    print(mined_per_miner)
     with mined_per_miner_lock:
         mined[mining_type] = mined[mining_type] + 1
         mined_per_miner[miner_id] = mined
-    print(mined_per_miner)
 
 GET_MINED_PER_MINER_PROCESS_AMOUNT = 2 # TODO envvar
 
@@ -98,7 +109,7 @@ def mined_per_miner_server():
     server_socket = SafeTCPSocket.newServer(BLOCK_APPENDER_PORT)
     get_process_pool = ProcessPoolExecutor(GET_MINED_PER_MINER_PROCESS_AMOUNT)
     while True:
-        client_socket = server_socket.accept()
+        client_socket,_ = server_socket.accept()
         # TODO
         # enqueued = get_process_pool._work_queue.qsize()
         # if enqueued > MAX_ENQUEUED_READS:

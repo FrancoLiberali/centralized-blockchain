@@ -1,7 +1,10 @@
 from common.common import INITIAL_DIFFICULTY, INITIAL_LAST_HASH, MAX_NONCE
 import copy
+from common.logger import Logger
+
 
 def main(block_builder_queue, miners_queues, block_appender_queue):
+    logger = Logger("Miners coordinator")
     last_hash = INITIAL_LAST_HASH
     difficulty = INITIAL_DIFFICULTY
     nonce_range_per_miner = int(MAX_NONCE // len(miners_queues))
@@ -9,6 +12,9 @@ def main(block_builder_queue, miners_queues, block_appender_queue):
         block_to_be_mined = block_builder_queue.get()
         block_to_be_mined.header['prev_hash'] = last_hash
         block_to_be_mined.header['difficulty'] = difficulty
+        logger.info(
+            f"Sending block to all miners: {block_to_be_mined}"
+        )
         for i, miner_queue in enumerate(miners_queues):
             # if i dont use deepcopy the nonce is the same for all miners,
             # probably because queue put is buffered and then the only existing

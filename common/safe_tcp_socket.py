@@ -29,8 +29,8 @@ class SafeTCPSocket:
         return safe_socket
 
     def accept(self):
-        (client_socket, _) = self.sock.accept()
-        return SafeTCPSocket(client_socket)
+        (client_socket, client_adress) = self.sock.accept()
+        return SafeTCPSocket(client_socket), client_adress
 
     def send(self, msg):
         total_sent = 0

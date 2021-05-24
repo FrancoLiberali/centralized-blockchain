@@ -1,4 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
+from logging import Logger
+import multiprocessing
 from pathlib import Path
 from threading import Lock, Thread
 from datetime import datetime
@@ -8,6 +10,7 @@ import time
 import sys
 sys.path.append("..")
 
+from common.block_interface import send_hash_and_block_json, recv_hash_and_block_json, recv_hash
 from common.common import STORAGE_MANAGER_WRITE_PORT, \
     STORAGE_MANAGER_READ_PORT, \
     STORAGE_MANAGER_MINED_PER_MINUTE_PORT, \
@@ -16,7 +19,8 @@ from common.common import STORAGE_MANAGER_WRITE_PORT, \
     HASH_LIST_SIZE_LEN_IN_BYTES
 from common.responses import respond_not_found, respond_ok, respond_service_unavaliable
 from common.safe_tcp_socket import SafeTCPSocket
-from common.block_interface import send_hash_and_block_json, recv_hash_and_block_json, recv_hash
+from common.logger import Logger, initialize_log
+
 
 # i have choosen to use threads because it is allmost all i/o,
 # so paralelism between instructions is not needed,
@@ -28,8 +32,10 @@ MAX_ENQUEUED_GET_MINED = 512
 
 # TODO DUDA no es la solucion mas eficiente, lectores entre ellos pueden leer a la vez (problema de lector - consumidor)
 day_indexs_locks = {}
+logger = Logger("Storage manager") # TODO se podria mejorar para que cada parte diga cual es
 
 def write_block(block_hash, block_json):
+    logger.info(f"Received request to write block with hash {hex(block_hash)}")
     # TODO DUDA responder un ok? No es neceserio, pero consultar en foro si quiero  
     with open(f"./blockchain_files/{hex(block_hash)}.json", "x") as block_file:
         block_file.write(block_json)
@@ -60,6 +66,7 @@ def write_block(block_hash, block_json):
 
         with open(day_index_file_path, "w") as index_file:
             json.dump(day_index, index_file, sort_keys=True, indent=4)
+    logger.info(f"Writed block with hash {hex(block_hash)}")
 
 
 def writer_server():
@@ -67,7 +74,7 @@ def writer_server():
 
     # TODO DUDA al parar el container quiere excribir el block 0x0.json y vacio, no se porque. Hay que hacer un gracefully quit?
     serversocket = SafeTCPSocket.newServer(STORAGE_MANAGER_WRITE_PORT)
-    block_appender_socket = serversocket.accept()
+    block_appender_socket, _ = serversocket.accept()
     while True:
         block_hash, block = recv_hash_and_block_json(block_appender_socket)
         write_block(block_hash, block)
@@ -86,9 +93,9 @@ def respond_mined_that_minute(sock, hash_list):
     )
     sock.send(hash_list_json.encode('utf-8'))
 
-
-def get_mined_per_minute(client_socket):
+def get_mined_per_minute(client_socket, client_address):
     minute = recv_minute(client_socket)
+    logger.info(f"Received request of blocks mined in {minute} from client {client_address}")
     # TODO codigo repetido con la escritura del indice
     day_string = minute.replace(hour=0, minute=0).strftime('%Y-%m-%d')
     day_index_file_path = f"./blockchain_files/minutes_index/{day_string}.json"
@@ -106,6 +113,7 @@ def get_mined_per_minute(client_socket):
                     respond_not_found(client_socket)
                 else:
                     respond_mined_that_minute(client_socket, mined_that_minute)
+                    logger.info(f"Blocks mined in {minute} sended to client {client_address}")
         except FileNotFoundError:
             respond_not_found(client_socket)
 
@@ -114,20 +122,22 @@ def mined_per_minute_server():
     thread_pool = ThreadPoolExecutor(MINED_PER_MINUTE_THREADS_AMOUNT)
     server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_MINED_PER_MINUTE_PORT)
     while True:
-        client_socket = server_socket.accept()
+        client_socket, client_address = server_socket.accept()
         enqueued = thread_pool._work_queue.qsize()
         if enqueued > MAX_ENQUEUED_GET_MINED:
             respond_service_unavaliable(client_socket)
             continue
         thread_pool.submit(
             get_mined_per_minute,
-            client_socket
+            client_socket,
+            client_address
         )
 
 
-def read_block(client_socket):
-    # time.sleep(10) # ONLY FOR DEBUGGING
+def read_block(client_socket, client_address):
+    # TODO la carga maxima de esto creo que está buggeada, me saltaba error
     block_hash = recv_hash(client_socket)
+    logger.info(f"Received request of block {hex(block_hash)} from client {client_address}")
     try:
         with open(f"./blockchain_files/{hex(block_hash)}.json", "r") as block_file:
             respond_ok(client_socket, close_socket=False)
@@ -136,11 +146,14 @@ def read_block(client_socket):
                 block_hash,
                 block_file.read()
             )
+            logger.info(f"Block {hex(block_hash)} sended to client {client_address}")
             client_socket.close()
     except FileNotFoundError:
+        logger.info(f"Block {hex(block_hash)} not found")
         respond_not_found(client_socket)
 
 def main():
+    initialize_log()
     writers_t = Thread(target=writer_server)
     writers_t.start()
 
@@ -151,12 +164,12 @@ def main():
 
     server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_READ_PORT)
     while True:
-        client_socket = server_socket.accept()
+        client_socket, client_address = server_socket.accept()
         enqueued = read_thread_pool._work_queue.qsize()
         if enqueued > MAX_ENQUEUED_READS:
             respond_service_unavaliable(client_socket)
             continue
-        read_thread_pool.submit(read_block, client_socket)
+        read_thread_pool.submit(read_block, client_socket, client_address)
 
 if __name__ == '__main__':
     main()

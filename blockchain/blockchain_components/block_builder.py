@@ -7,15 +7,18 @@ from common.common import Block, \
     MAX_ENTRY_SIZE_IN_BYTES
 from common.safe_tcp_socket import SafeTCPSocket
 from common.responses import respond_bad_request, respond_ok, respond_service_unavaliable
+from common.logger import Logger
+
 
 def main(miners_coordinator_queue):
+    logger = Logger("Block builder")
     serversocket = SafeTCPSocket.newServer(BLOCK_BUILDER_PORT)
     chunks = []
     start_time = None
 
     while True:
         # TODO DUDA meter el client adress en algun lado para poder saber quien lo mando? Podria pero no es obligatorio
-        clientsocket = serversocket.accept()
+        clientsocket, client_adress = serversocket.accept()
         if not miners_coordinator_queue.full():
             chunk_size_bytes = clientsocket.recv(CHUNK_SIZE_LEN_IN_BYTES)
             chunk_size = int.from_bytes(chunk_size_bytes, byteorder='big', signed=False)
@@ -24,6 +27,7 @@ def main(miners_coordinator_queue):
 
             # TODO DUDA ver esto, limita que solo sean archivos de texto pero sino no lo puedo meter en el json. Consultar en foro
             chunk = clientsocket.recv(chunk_size).decode("utf-8")
+            logger.info(f"Received chuck from client {client_adress}: {chunk}")
 
             # the start_time if from the acceptation of the first chunk to no to take into account
             # the time that the miners_coordinator_queue is full
@@ -37,6 +41,9 @@ def main(miners_coordinator_queue):
 
             if len(chunks) == MAX_ENTRIES_AMOUNT or elapsed_time >= TARGET_TIME_IN_SECONDS:
                 block = Block(chunks)
+                logger.info(
+                    f"Block appended to Miner's coordinator queue: {block}"
+                )
                 miners_coordinator_queue.put(block)
                 chunks = []
 
