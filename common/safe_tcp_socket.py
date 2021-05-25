@@ -3,6 +3,7 @@ import socket
 MAXIMUM_CHUNK_RECEIVE = 2048
 STRING_ENCODING = 'utf-8'
 INT_BYTE_ORDER = 'big'
+INT_SIGNED = True
 
 class SafeTCPSocket:
     def __init__(self, sock = None):
@@ -42,7 +43,7 @@ class SafeTCPSocket:
 
     def send_int(self, int_to_send, len_in_bytes):
         int_bytes = int_to_send.to_bytes(
-            len_in_bytes, byteorder=INT_BYTE_ORDER, signed=False
+            len_in_bytes, byteorder=INT_BYTE_ORDER, signed=INT_SIGNED
         )
         self.sock.send(int_bytes)
 
@@ -68,7 +69,7 @@ class SafeTCPSocket:
 
     def recv_int(self, int_len_in_bytes):
         int_bytes = self.recv(int_len_in_bytes)
-        return int.from_bytes(int_bytes, byteorder=INT_BYTE_ORDER, signed=False)
+        return int.from_bytes(int_bytes, byteorder=INT_BYTE_ORDER, signed=INT_SIGNED)
 
     def recv_string(self, string_len_in_bytes):
         return self.recv(string_len_in_bytes).decode(STRING_ENCODING)

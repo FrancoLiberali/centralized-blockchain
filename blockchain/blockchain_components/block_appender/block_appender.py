@@ -1,6 +1,6 @@
 import datetime
 
-from blockchain_components.block_appender.mined_per_miner import add_successfull_mining, add_wrong_mining
+from blockchain_components.block_appender.mined_per_miner import add_successful_mining, add_wrong_mining
 from common.common import isCryptographicPuzzleSolved, \
     INITIAL_DIFFICULTY, \
     INITIAL_LAST_HASH, \
@@ -61,7 +61,7 @@ def block_appender_server(miners_queue, miners_coordinator_queue):
             logger.info(
                 f"Block received from Miner {message.miner_id} added to blockchain sucessfully: {message.block}"
             )
-            add_successfull_mining(message.miner_id)
+            add_successful_mining(message.miner_id)
             miners_coordinator_queue.put(
                 (block_appender.last_block_hash,
                  block_appender.difficulty)
