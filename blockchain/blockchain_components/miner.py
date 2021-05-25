@@ -21,7 +21,7 @@ class Miner():
                 if self.block_to_be_mined != None:
                     if isCryptographicPuzzleSolved(self.block_to_be_mined, self.block_to_be_mined.header['difficulty']):
                         self.logger.info(
-                            f"Cryptografic puzzle solver with nonce: {self.block_to_be_mined.header['nonce']}"
+                            f"Cryptografic puzzle solved with nonce: {self.block_to_be_mined.header['nonce']}"
                         )
                         block_appender_queue.put(
                             BlockMinedMessage(self.id, self.block_to_be_mined)

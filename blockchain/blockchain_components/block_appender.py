@@ -104,18 +104,19 @@ def add_mining(miner_id, mining_type):
         mined_per_miner[miner_id] = mined
 
 GET_MINED_PER_MINER_PROCESS_AMOUNT = 2 # TODO envvar
+# TODO modularizar
 
 def mined_per_miner_server():
     server_socket = SafeTCPSocket.newServer(BLOCK_APPENDER_PORT)
-    get_process_pool = ProcessPoolExecutor(GET_MINED_PER_MINER_PROCESS_AMOUNT)
+    process_pool = ProcessPoolExecutor(GET_MINED_PER_MINER_PROCESS_AMOUNT)
     while True:
         client_socket,_ = server_socket.accept()
         # TODO
-        # enqueued = get_process_pool._work_queue.qsize()
+        # enqueued = process_pool._work_queue.qsize()
         # if enqueued > MAX_ENQUEUED_READS:
             # respond_service_unavaliable(client_socket)
             # continue
-        get_process_pool.submit(get_mined_per_miner, client_socket)
+        process_pool.submit(get_mined_per_miner, client_socket)
 
 
 def get_mined_per_miner(client_socket):

@@ -8,19 +8,27 @@ from common.common import STORAGE_MANAGER_WRITE_PORT
 from common.logger import Logger
 from common.safe_tcp_socket import SafeTCPSocket
 from components.common import get_minutes_index_path, \
+    shared_memory_manager, \
+    hash_prefix_locks_lock, \
+    hash_prefix_locks, \
+    minutes_indexs_locks_lock, \
     minutes_indexs_locks, \
     get_block_hash_prefix, \
-    get_blocks_by_prefix_path, \
-    hash_prefix_locks
+    get_blocks_by_prefix_path
 
 logger = Logger("Storage manager - Block writer")
 
-def append_to_json(locks_dict, locks_key, file_path, append_function):
-    # TODO aca falta un lock? Mas de uno puede estar haciendo esto a la vez?
-    lock = locks_dict.get(locks_key, None)
-    if not lock:
-        lock = Lock()
-        locks_dict[locks_key] = lock
+
+def get_or_create_lock(locks_dict_lock, locks_dict, locks_key):
+    with locks_dict_lock:
+        lock = locks_dict.get(locks_key, None)
+        if not lock:
+            lock = shared_memory_manager.Lock()
+            locks_dict[locks_key] = lock
+    return lock
+
+def append_to_json(locks_dict_lock, locks_dict, locks_key, file_path, append_function):
+    lock = get_or_create_lock(locks_dict_lock, locks_dict, locks_key)
 
     with lock:
         try:
@@ -59,6 +67,7 @@ def write_block(block_hash, block_json):
     blocks_by_prefix_path = get_blocks_by_prefix_path(prefix)
     # TODO DUDA responder un ok? No es neceserio, pero consultar en foro si quiero
     append_to_json(
+        hash_prefix_locks_lock,
         hash_prefix_locks,
         prefix,
         blocks_by_prefix_path,
@@ -74,6 +83,7 @@ def write_block(block_hash, block_json):
     day_string = minute.replace(hour=0, minute=0).strftime('%Y-%m-%d')
     minutes_index_file_path = get_minutes_index_path(day_string)
     append_to_json(
+        minutes_indexs_locks_lock,
         minutes_indexs_locks,
         day_string,
         minutes_index_file_path,

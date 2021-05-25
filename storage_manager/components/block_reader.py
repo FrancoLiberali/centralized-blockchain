@@ -1,4 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 
 from common.block_interface import send_hash_and_block_json, recv_hash
 from common.common import STORAGE_MANAGER_READ_PORT
@@ -7,10 +7,7 @@ from common.responses import respond_not_found, respond_ok, respond_service_unav
 from common.safe_tcp_socket import SafeTCPSocket
 from components.common import read_block
 
-# i have choosen to use threads because it is allmost all i/o,
-# so paralelism between instructions is not needed,
-# and multithreading if ligther than multiprocessing
-READ_THREADS_AMOUNT = 64
+READ_PROCESS_AMOUNT = 64
 MAX_ENQUEUED_READS = 512
 
 logger = Logger("Storage manager - Block reader")
@@ -36,13 +33,14 @@ def reply_block(client_socket, client_address):
 
 
 def reader_server():
-    read_thread_pool = ThreadPoolExecutor(READ_THREADS_AMOUNT)
+    read_process_pool = ProcessPoolExecutor(READ_PROCESS_AMOUNT)
 
     server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_READ_PORT)
     while True:
         client_socket, client_address = server_socket.accept()
-        enqueued = read_thread_pool._work_queue.qsize()
-        if enqueued > MAX_ENQUEUED_READS:
-            respond_service_unavaliable(client_socket)
-            continue
-        read_thread_pool.submit(reply_block, client_socket, client_address)
+        # TODO
+        # enqueued = read_process_pool._work_queue.qsize()
+        # if enqueued > MAX_ENQUEUED_READS:
+            # respond_service_unavaliable(client_socket)
+            # continue
+        read_process_pool.submit(reply_block, client_socket, client_address)
