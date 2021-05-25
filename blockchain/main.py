@@ -1,6 +1,7 @@
 from multiprocessing import Process, Queue
 
-from blockchain_components import block_builder, miners_coordinator, miner, block_appender
+from blockchain_components import block_builder, miners_coordinator, miner
+from blockchain_components.block_appender import initializer
 from common.common import MINERS_AMOUNT
 from common.logger import initialize_log
 
@@ -23,7 +24,7 @@ def main():
     miners_to_block_appender_queue = Queue()
     block_appender_to_miners_coordinator_queue = Queue()
     block_appender_p = Process(
-        target=block_appender.main, args=(
+        target=initializer.initialize, args=(
             (miners_to_block_appender_queue),
             (block_appender_to_miners_coordinator_queue)
         )
