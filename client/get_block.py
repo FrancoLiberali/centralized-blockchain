@@ -29,7 +29,7 @@ def main():
         print(f"{block_json}")
     elif response_code == NOT_FOUND_RESPONSE_CODE:
         print(
-            f"Oops! Could not found block with hash {block_hash}. Remember that it should be ther hex representation starting with the '0x...'")
+            f"Oops! Could not found block with hash {block_hash}. Remember that it should be the hex representation starting with the '0x...'")
     elif response_code == SERVICE_UNAVAILABLE_RESPONSE_CODE:
         print("Oops! Too many data is being readed at this moment, please retry later")
     else:
