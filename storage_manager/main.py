@@ -25,48 +25,92 @@ MAX_ENQUEUED_READS = 512
 MINED_PER_MINUTE_THREADS_AMOUNT = 64
 MAX_ENQUEUED_GET_MINED = 512
 
+BLOCKCHAIN_FILES_PATH = "/storage_manager/blockchain_files"
+MINUTES_INDEX_PATH = f"{BLOCKCHAIN_FILES_PATH}/minutes_index"
+
 # TODO DUDA no es la solucion mas eficiente, lectores entre ellos pueden leer a la vez (problema de lector - consumidor)
-day_indexs_locks = {}
+minutes_indexs_locks = {}
+hash_prefix_locks = {}
 logger = Logger("Storage manager") # TODO se podria mejorar para que cada parte diga cual es
 
+def get_blocks_by_prefix_path(prefix):
+    return f"{BLOCKCHAIN_FILES_PATH}/{prefix}.json"
+
+def get_minutes_index_path(day):
+    return f"{MINUTES_INDEX_PATH}/{day}.json"
+
+def get_block_hash_prefix(block_hash_hex):
+    return block_hash_hex[2:7]
+
+def append_to_json(locks_dict, locks_key, file_path, append_function):
+    # TODO aca falta un lock? Mas de uno puede estar haciendo esto a la vez?
+    lock = locks_dict.get(locks_key, None)
+    if not lock:
+        lock = Lock()
+        locks_dict[locks_key] = lock
+
+    with lock:
+        try:
+            with open(file_path, "r") as json_file:
+                json_dict = json.load(json_file)
+        except FileNotFoundError:
+            json_dict = {}
+
+        append_function(json_dict)
+        with open(file_path, "w") as json_file:
+            json.dump(json_dict, json_file, indent=4)
+
+
+def append_block_to_blocks_by_prefix(block_hash_hex, block_json):
+    # function currying in python
+    def append_func(blocks_dict):
+        blocks_dict[block_hash_hex] = block_json
+    return append_func
+
+
+def append_block_hash_to_minutes_index(minute, block_hash_hex):
+    minute_key = repr(minute.timestamp())
+    # function currying in python
+    def append_func(minutes_index):
+        mined_that_minute = minutes_index.get(minute_key, [])
+        mined_that_minute.append(block_hash_hex)
+        minutes_index[minute_key] = mined_that_minute
+    return append_func
+
 def write_block(block_hash, block_json):
-    logger.info(f"Received request to write block with hash {hex(block_hash)}")
-    # TODO DUDA responder un ok? No es neceserio, pero consultar en foro si quiero  
-    with open(f"./blockchain_files/{hex(block_hash)}.json", "x") as block_file:
-        block_file.write(block_json)
+    block_hash_hex = hex(block_hash)
+    logger.info(f"Received request to write block with hash {block_hash_hex}")
+
+    prefix = get_block_hash_prefix(block_hash_hex)
+    blocks_by_prefix_path = get_blocks_by_prefix_path(prefix)
+    # TODO DUDA responder un ok? No es neceserio, pero consultar en foro si quiero
+    append_to_json(
+        hash_prefix_locks,
+        prefix,
+        blocks_by_prefix_path,
+        append_block_to_blocks_by_prefix(
+            block_hash_hex, block_json
+        )
+    )
 
     block_dict = json.loads(block_json)
     # TODO poner en variable global
     mined_in = datetime.fromtimestamp(block_dict['header']['timestamp'])
     minute = mined_in.replace(second=0, microsecond=0)
     day_string = minute.replace(hour=0, minute=0).strftime('%Y-%m-%d')
-    day_index_file_path = f"./blockchain_files/minutes_index/{day_string}.json"
-
-    lock = day_indexs_locks.get(day_string, None)
-    if not lock:
-        lock = Lock()
-        day_indexs_locks[day_string] = lock
-
-    with lock:
-        try:
-            with open(day_index_file_path, "r") as index_file:
-                day_index = json.load(index_file)
-        except FileNotFoundError:
-            day_index = {}
-
-        minute_key = repr(minute.timestamp())
-        mined_that_minute = day_index.get(minute_key, [])
-        mined_that_minute.append(hex(block_hash))
-        day_index[minute_key] = mined_that_minute
-
-        with open(day_index_file_path, "w") as index_file:
-            json.dump(day_index, index_file, sort_keys=True, indent=4)
-    logger.info(f"Writed block with hash {hex(block_hash)}")
+    minutes_index_file_path = get_minutes_index_path(day_string)
+    append_to_json(
+        minutes_indexs_locks,
+        day_string,
+        minutes_index_file_path,
+        append_block_hash_to_minutes_index(
+            minute, block_hash_hex
+        )
+    )
+    logger.info(f"Writed block with hash {block_hash_hex} in {prefix}.json")
 
 
 def writer_server():
-    Path("./blockchain_files/minutes_index").mkdir(parents=True, exist_ok=True)
-
     # TODO DUDA al parar el container quiere excribir el block 0x0.json y vacio, no se porque. Hay que hacer un gracefully quit?
     serversocket = SafeTCPSocket.newServer(STORAGE_MANAGER_WRITE_PORT)
     block_appender_socket, _ = serversocket.accept()
@@ -97,24 +141,17 @@ def get_mined_per_minute(client_socket, client_address):
     logger.info(f"Received request of blocks mined in {minute} from client {client_address}")
     # TODO codigo repetido con la escritura del indice
     day_string = minute.replace(hour=0, minute=0).strftime('%Y-%m-%d')
-    day_index_file_path = f"./blockchain_files/minutes_index/{day_string}.json"
+    minutes_index_file_path = get_minutes_index_path(day_string)
 
-    lock = day_indexs_locks.get(day_string, None)
-    if not lock:
+    try:
+        lock = minutes_indexs_locks[day_string]
+        minutes_index = read_from_json(lock, minutes_index_file_path)
+        mined_that_minute = minutes_index[repr(minute.timestamp())]
+        respond_mined_that_minute(client_socket, mined_that_minute)
+        logger.info(f"Blocks mined in {minute} sended to client {client_address}")
+    except (KeyError, FileNotFoundError) as e:
+        logger.info(f"Blocks mined in {minute} not found")
         respond_not_found(client_socket)
-
-    with lock:
-        try:
-            with open(day_index_file_path, "r") as index_file:
-                day_index = json.load(index_file)
-                mined_that_minute = day_index.get(repr(minute.timestamp()), None)
-                if not mined_that_minute:
-                    respond_not_found(client_socket)
-                else:
-                    respond_mined_that_minute(client_socket, mined_that_minute)
-                    logger.info(f"Blocks mined in {minute} sended to client {client_address}")
-        except FileNotFoundError:
-            respond_not_found(client_socket)
 
 def mined_per_minute_server():
     # TODO pasar a process pool, porque acá si hay procesamiento al levantar json's
@@ -132,14 +169,22 @@ def mined_per_minute_server():
             client_address
         )
 
-def read_block(block_hash):
-    try:
-        with open(f"./blockchain_files/{block_hash}.json", "r") as block_file:
-            return block_file.read()
-    except FileNotFoundError as e:
-        logger.info(f"Block {block_hash} not found")
-        raise e
+def read_from_json(lock, json_file_path):
+    with lock:
+        with open(json_file_path, "r") as json_file:
+            return json.load(json_file)
 
+def read_block(block_hash_hex):
+    prefix = get_block_hash_prefix(block_hash_hex)
+    block_with_prefix_path = get_blocks_by_prefix_path(prefix)
+
+    try:
+        lock = hash_prefix_locks[prefix]
+        blocks_dict = read_from_json(lock, block_with_prefix_path)
+        return blocks_dict[block_hash_hex]
+    except (KeyError, FileNotFoundError) as e:
+        logger.info(f"Block {block_hash_hex} not found")
+        raise e
 
 def reply_block(client_socket, client_address):
     # TODO la carga maxima de esto creo que está buggeada, me saltaba error
@@ -156,12 +201,14 @@ def reply_block(client_socket, client_address):
         logger.info(
             f"Block {hex(block_hash)} sended to client {client_address}")
         client_socket.close()
-    except FileNotFoundError:
-        logger.info(f"Block {hex(block_hash)} not found")
+    except (KeyError, FileNotFoundError):
         respond_not_found(client_socket)
 
 def main():
     initialize_log()
+
+    Path(MINUTES_INDEX_PATH).mkdir(parents=True, exist_ok=True)
+
     writers_t = Thread(target=writer_server)
     writers_t.start()
 
