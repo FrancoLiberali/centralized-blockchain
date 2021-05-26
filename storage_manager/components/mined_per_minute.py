@@ -10,7 +10,8 @@ from common.common import STORAGE_MANAGER_MINED_PER_MINUTE_PORT, \
 from common.logger import Logger
 from common.responses import respond_not_found, respond_ok, respond_service_unavaliable
 from common.safe_tcp_socket import SafeTCPSocket
-from components.common import get_minutes_index_path, \
+from components.common import get_day_string, \
+    get_minutes_index_path, \
     minutes_indexs_locks_lock, \
     minutes_indexs_locks, \
     read_from_json, \
@@ -42,13 +43,12 @@ def respond_mined_that_minute(client_socket, hash_list):
         )
     client_socket.close()
 
-
 def get_mined_per_minute(client_socket, client_address):
     minute = recv_minute(client_socket)
     logger.info(
         f"Received request of blocks mined in {minute} from client {client_address}")
     # TODO codigo repetido con la escritura del indice
-    day_string = minute.replace(hour=0, minute=0).strftime('%Y-%m-%d')
+    day_string = get_day_string(minute)
     minutes_index_file_path = get_minutes_index_path(day_string)
 
     try:

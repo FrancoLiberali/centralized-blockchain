@@ -4,7 +4,7 @@ from multiprocessing import Lock, Manager
 BLOCKCHAIN_FILES_PATH = "/storage_manager/blockchain_files"
 MINUTES_INDEX_PATH = f"{BLOCKCHAIN_FILES_PATH}/minutes_index"
 
-# TODO DUDA no es la solucion mas eficiente, lectores entre ellos pueden leer a la vez (problema de lector - consumidor)
+# TODO DUDA no es la solucion mas eficiente, lectores entre ellos pueden leer a la vez (problema de lector - escritor)
 shared_memory_manager = Manager()
 hash_prefix_locks_lock = Lock()
 hash_prefix_locks = shared_memory_manager.dict()
@@ -40,3 +40,6 @@ def read_block(logger, block_hash_hex):
     except (KeyError, FileNotFoundError) as e:
         logger.info(f"Block {block_hash_hex} not found")
         raise e
+
+def get_day_string(minute):
+    return minute.replace(hour=0, minute=0).strftime('%Y-%m-%d')

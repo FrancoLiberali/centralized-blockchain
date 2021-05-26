@@ -2,8 +2,8 @@ import json
 
 MINED_PER_MINER_PATH = "/blockchain/blockchain_components/mined_counter/mined_per_miner_files"
 
-mined_per_miner_locks = {}  # TODO que no pida sudo el docker down
-# TODO no es lo mas eficiente, lectores-escritores
+mined_per_miner_locks = {} # TODO no es lo mas eficiente, problema de lectores-escritores
+# TODO que no pida sudo el docker down
 
 def get_mined_by_miner_path(miner_id):
     return f"{MINED_PER_MINER_PATH}/{miner_id}.json"

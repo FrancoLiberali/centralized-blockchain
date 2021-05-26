@@ -7,7 +7,8 @@ from common.block_interface import recv_hash_and_block_json
 from common.common import STORAGE_MANAGER_WRITE_PORT
 from common.logger import Logger
 from common.safe_tcp_socket import SafeTCPSocket
-from components.common import get_minutes_index_path, \
+from components.common import get_day_string, \
+    get_minutes_index_path, \
     shared_memory_manager, \
     hash_prefix_locks_lock, \
     hash_prefix_locks, \
@@ -65,7 +66,6 @@ def write_block(block_hash, block_json):
 
     prefix = get_block_hash_prefix(block_hash_hex)
     blocks_by_prefix_path = get_blocks_by_prefix_path(prefix)
-    # TODO DUDA responder un ok? No es neceserio, pero consultar en foro si quiero
     append_to_json(
         hash_prefix_locks_lock,
         hash_prefix_locks,
@@ -80,7 +80,7 @@ def write_block(block_hash, block_json):
     # TODO poner en variable global
     mined_in = datetime.fromtimestamp(block_dict['header']['timestamp'])
     minute = mined_in.replace(second=0, microsecond=0)
-    day_string = minute.replace(hour=0, minute=0).strftime('%Y-%m-%d')
+    day_string = get_day_string(minute)
     minutes_index_file_path = get_minutes_index_path(day_string)
     append_to_json(
         minutes_indexs_locks_lock,
