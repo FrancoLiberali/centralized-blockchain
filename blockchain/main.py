@@ -1,6 +1,7 @@
 from multiprocessing import Process, Queue
 
-from blockchain_components import block_builder, miners_coordinator, miner, block_appender, mined_counter
+from blockchain_components import block_builder, miners_coordinator, miner, block_appender
+import blockchain_components.mined_counter.initializer
 from common.common import MINERS_IDS
 from common.logger import initialize_log
 
@@ -33,7 +34,7 @@ def main():
     block_appender_p.start()
 
     mined_counter_p = Process(
-        target=mined_counter.main, args=(
+        target=blockchain_components.mined_counter.initializer.initialize, args=(
             (block_appender_to_mined_counter_queue),
         )
     )
