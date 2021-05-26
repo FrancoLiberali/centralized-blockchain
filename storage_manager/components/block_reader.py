@@ -13,7 +13,6 @@ MAX_ENQUEUED_READS = 512
 logger = logging.getLogger(name="Storage manager - Block reader")
 
 def reply_block(client_socket, client_address):
-    # TODO la carga maxima de esto creo que está buggeada, me saltaba error
     block_hash = recv_hash(client_socket)
     logger.info(
         f"Received request of block {hex(block_hash)} from client {client_address}")
@@ -38,9 +37,4 @@ def reader_server():
     server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_READ_PORT)
     while True:
         client_socket, client_address = server_socket.accept()
-        # TODO
-        # enqueued = read_process_pool._work_queue.qsize()
-        # if enqueued > MAX_ENQUEUED_READS:
-            # respond_service_unavaliable(client_socket)
-            # continue
         read_process_pool.submit(reply_block, client_socket, client_address)

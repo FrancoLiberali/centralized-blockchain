@@ -66,11 +66,6 @@ def mined_per_minute_server():
     server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_MINED_PER_MINUTE_PORT)
     while True:
         client_socket, client_address = server_socket.accept()
-        # TODO
-        # enqueued = thread_pool._work_queue.qsize()
-        # if enqueued > MAX_ENQUEUED_GET_MINED:
-            # respond_service_unavaliable(client_socket)
-            # continue
         thread_pool.submit(
             get_mined_per_minute,
             client_socket,
