@@ -3,7 +3,7 @@ import socket
 MAXIMUM_CHUNK_RECEIVE = 2048
 STRING_ENCODING = 'utf-8'
 INT_BYTE_ORDER = 'big'
-INT_SIGNED = True
+INT_SIGNED = False
 
 class SafeTCPSocket:
     def __init__(self, sock = None):

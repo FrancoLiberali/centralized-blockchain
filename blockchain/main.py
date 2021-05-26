@@ -1,8 +1,7 @@
 from multiprocessing import Process, Queue
 
-from blockchain_components import block_builder, miners_coordinator, miner
-from blockchain_components.block_appender import initializer
-from common.common import MINERS_AMOUNT
+from blockchain_components import block_builder, miners_coordinator, miner, block_appender, mined_counter
+from common.common import MINERS_IDS
 from common.logger import initialize_log
 
 MAX_BLOCKS_ENQUEUED = 2048 # TODO envvar
@@ -23,17 +22,26 @@ def main():
 
     miners_to_block_appender_queue = Queue()
     block_appender_to_miners_coordinator_queue = Queue()
+    block_appender_to_mined_counter_queue = Queue()
     block_appender_p = Process(
-        target=initializer.initialize, args=(
+        target=block_appender.main, args=(
             (miners_to_block_appender_queue),
-            (block_appender_to_miners_coordinator_queue)
+            (block_appender_to_miners_coordinator_queue),
+            (block_appender_to_mined_counter_queue),
         )
     )
     block_appender_p.start()
 
+    mined_counter_p = Process(
+        target=mined_counter.main, args=(
+            (block_appender_to_mined_counter_queue),
+        )
+    )
+    mined_counter_p.start()
+
     miners_queues = []
     miners = []
-    for miner_id in range(0, MINERS_AMOUNT):
+    for miner_id in MINERS_IDS:
         miner_queue = Queue()
         miner_p = Process(
             target=miner.main, args=(

@@ -132,3 +132,4 @@ dmypy.json
 
 storage_manager/blockchain_files
 client/blockchain_files
+blockchain/blockchain_components/mined_counter/mined_per_miner_files

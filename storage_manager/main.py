@@ -12,7 +12,7 @@ def main():
 
     Path(MINUTES_INDEX_PATH).mkdir(parents=True, exist_ok=True)
 
-    writers_t = Thread(target=writer_server)
+    writers_t = Thread(target=writer_server) # TODO pasar a proccess
     writers_t.start()
 
     mined_per_minute_t = Thread(target=mined_per_minute_server)

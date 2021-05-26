@@ -1,7 +1,8 @@
 import datetime
 
-from blockchain_components.block_appender.mined_per_miner import add_successful_mining, add_wrong_mining
-from common.common import isCryptographicPuzzleSolved, \
+from common.common import ADD_SUCCESSFUL_MINING_OP, \
+    ADD_WRONG_MINING_OP, \
+    isCryptographicPuzzleSolved, \
     INITIAL_DIFFICULTY, \
     INITIAL_LAST_HASH, \
     STORAGE_MANAGER_HOST, \
@@ -48,7 +49,7 @@ class BlockAppender:
         return block.header['prev_hash'] == self.last_block_hash and isCryptographicPuzzleSolved(block, self.difficulty)
 
 
-def block_appender_server(miners_queue, miners_coordinator_queue):
+def main(miners_queue, miners_coordinator_queue, mined_counter_queue):
     logger = Logger(f"Block appender")
     block_appender = BlockAppender()
     while True:
@@ -61,7 +62,7 @@ def block_appender_server(miners_queue, miners_coordinator_queue):
             logger.info(
                 f"Block received from Miner {message.miner_id} added to blockchain sucessfully: {message.block}"
             )
-            add_successful_mining(message.miner_id)
+            send_add_successful_mining(mined_counter_queue, message.miner_id)
             miners_coordinator_queue.put(
                 (block_appender.last_block_hash,
                  block_appender.difficulty)
@@ -70,4 +71,20 @@ def block_appender_server(miners_queue, miners_coordinator_queue):
             logger.info(
                 f"Block {block_hash_hex} received from Miner {message.miner_id} couldn't be added to blockchain"
             )
-            add_wrong_mining(message.miner_id)
+            send_add_wrong_mining(mined_counter_queue, message.miner_id)
+
+
+class NewMinedMessage:
+    def __init__(self, miner_id, block):
+        self.miner_id = miner_id
+        self.operation = block
+
+def send_add_successful_mining(mined_counter_queue, miner_id):
+    mined_counter_queue.put(
+        NewMinedMessage(miner_id, ADD_SUCCESSFUL_MINING_OP)
+    )
+
+def send_add_wrong_mining(mined_counter_queue, miner_id):
+    mined_counter_queue.put(
+        NewMinedMessage(miner_id, ADD_WRONG_MINING_OP)
+    )
