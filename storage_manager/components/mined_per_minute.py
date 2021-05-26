@@ -62,11 +62,11 @@ def get_mined_per_minute(client_socket, client_address):
 
 
 def mined_per_minute_server():
-    thread_pool = ProcessPoolExecutor(MINED_PER_MINUTE_PROCESS_AMOUNT)
+    process_pool = ProcessPoolExecutor(MINED_PER_MINUTE_PROCESS_AMOUNT)
     server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_MINED_PER_MINUTE_PORT)
     while True:
         client_socket, client_address = server_socket.accept()
-        thread_pool.submit(
+        process_pool.submit(
             get_mined_per_minute,
             client_socket,
             client_address
