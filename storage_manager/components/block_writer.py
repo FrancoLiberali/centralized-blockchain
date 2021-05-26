@@ -1,11 +1,9 @@
 from datetime import datetime
 import json
-from logging import Logger
-from multiprocessing import Lock
+import logging
 
 from common.block_interface import recv_hash_and_block_json
 from common.common import STORAGE_MANAGER_WRITE_PORT
-from common.logger import Logger
 from common.safe_tcp_socket import SafeTCPSocket
 from components.common import get_day_string, \
     get_minutes_index_path, \
@@ -17,7 +15,7 @@ from components.common import get_day_string, \
     get_block_hash_prefix, \
     get_blocks_by_prefix_path
 
-logger = Logger("Storage manager - Block writer")
+logger = logging.getLogger(name="Storage manager - Block writer")
 
 
 def get_or_create_lock(locks_dict_lock, locks_dict, locks_key):

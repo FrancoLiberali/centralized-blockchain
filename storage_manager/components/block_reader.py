@@ -1,8 +1,8 @@
 from concurrent.futures import ProcessPoolExecutor
+import logging
 
 from common.block_interface import send_hash_and_block_json, recv_hash
 from common.common import STORAGE_MANAGER_READ_PORT
-from common.logger import Logger
 from common.responses import respond_not_found, respond_ok, respond_service_unavaliable
 from common.safe_tcp_socket import SafeTCPSocket
 from components.common import read_block
@@ -10,7 +10,7 @@ from components.common import read_block
 READ_PROCESS_AMOUNT = 64
 MAX_ENQUEUED_READS = 512
 
-logger = Logger("Storage manager - Block reader")
+logger = logging.getLogger(name="Storage manager - Block reader")
 
 def reply_block(client_socket, client_address):
     # TODO la carga maxima de esto creo que está buggeada, me saltaba error

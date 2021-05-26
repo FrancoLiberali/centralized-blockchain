@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from common.common import ADD_SUCCESSFUL_MINING_OP, \
     ADD_WRONG_MINING_OP, \
@@ -10,7 +11,6 @@ from common.common import ADD_SUCCESSFUL_MINING_OP, \
     TARGET_TIME_IN_SECONDS
 from common.safe_tcp_socket import SafeTCPSocket
 from common.block_interface import send_block_with_hash
-from common.logger import Logger
 
 BLOCKS_ADDED_TO_ADJUST_DIFFICULTY = 256
 
@@ -50,7 +50,7 @@ class BlockAppender:
 
 
 def main(miners_queue, miners_coordinator_queue, mined_counter_queue):
-    logger = Logger(f"Block appender")
+    logger = logging.getLogger(name="Block appender")
     block_appender = BlockAppender()
     while True:
         message = miners_queue.get()

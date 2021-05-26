@@ -1,5 +1,6 @@
 from concurrent.futures import ProcessPoolExecutor
 import json
+import logging
 
 from blockchain_components.mined_counter.common import read_list_from_miner_file, \
     mined_per_miner_locks
@@ -8,13 +9,12 @@ from common.common import ALL_MINERS, \
     MINED_PER_MINER_SIZE_LEN_IN_BYTES, \
     MINERS_IDS, \
     MINER_ID_LEN_IN_BYTES
-from common.logger import Logger
 from common.responses import respond_ok
 from common.safe_tcp_socket import SafeTCPSocket
 
 GET_MINED_PER_MINER_PROCESS_AMOUNT = 2  # TODO envvar
 
-logger = Logger("Mined counter - Get mined per miner")
+logger = logging.getLogger(name="Mined counter - Get mined per miner")
 
 
 def get_mined_per_miner(client_socket, client_address):

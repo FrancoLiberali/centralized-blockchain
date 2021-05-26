@@ -3,12 +3,13 @@ from multiprocessing import Process, Queue
 from blockchain_components import block_builder, miners_coordinator, miner, block_appender
 import blockchain_components.mined_counter.initializer
 from common.common import MINERS_IDS
-from common.logger import initialize_log
+from common.logger import configure_log, join_logger
 
 MAX_BLOCKS_ENQUEUED = 2048 # TODO envvar
 
 def main():
-    initialize_log()
+    log_queue, log_listener = configure_log()
+
     block_builder_to_miners_coordinator_queue = Queue(
         maxsize=MAX_BLOCKS_ENQUEUED
     )
@@ -66,6 +67,8 @@ def main():
         miner_p.join()
     block_appender_p.join()
     block_builder_p.join()
+
+    join_logger(log_queue, log_listener)
 
 if __name__ == '__main__':
     main()

@@ -1,10 +1,11 @@
-from common.common import INITIAL_DIFFICULTY, INITIAL_LAST_HASH, MAX_NONCE
 import copy
-from common.logger import Logger
+import logging
 import datetime
 
+from common.common import INITIAL_DIFFICULTY, INITIAL_LAST_HASH, MAX_NONCE
+
 def main(block_builder_queue, miners_queues, block_appender_queue):
-    logger = Logger("Miners coordinator")
+    logger = logging.getLogger(name="Miners coordinator")
     last_hash = INITIAL_LAST_HASH
     difficulty = INITIAL_DIFFICULTY
     nonce_range_per_miner = int(MAX_NONCE // len(miners_queues))

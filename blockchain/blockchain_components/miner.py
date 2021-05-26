@@ -1,7 +1,7 @@
+import logging
 from threading import Thread, Lock
 
 from common.common import isCryptographicPuzzleSolved, MAX_NONCE
-from common.logger import Logger
 
 class BlockMinedMessage:
     def __init__(self, miner_id, block):
@@ -11,7 +11,7 @@ class BlockMinedMessage:
 class Miner():
     def __init__(self, id):
         self.id = id
-        self.logger = Logger(f"Miner {id}")
+        self.logger = logging.getLogger(name=f"Miner {id}")
         self.lock = Lock()
         self.block_to_be_mined = None
 
@@ -32,7 +32,7 @@ class Miner():
                     self.block_to_be_mined.header['nonce'] += 1
 
 def main(id, coordinator_queue, block_appender_queue):
-    logger = Logger(f"Miner {id} master")
+    logger = logging.getLogger(name=f"Miner {id} master")
     miner = Miner(id)
     t = None
 

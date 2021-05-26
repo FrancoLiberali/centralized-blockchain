@@ -1,13 +1,12 @@
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
-from logging import Logger
+import logging
 
 from common.block_interface import send_hash_and_block_json
 from common.common import STORAGE_MANAGER_MINED_PER_MINUTE_PORT, \
     DATE_SIZE_LEN_IN_BYTES, \
     DATE_STRING_FORMAT, \
     HASH_LIST_SIZE_LEN_IN_BYTES
-from common.logger import Logger
 from common.responses import respond_not_found, respond_ok, respond_service_unavaliable
 from common.safe_tcp_socket import SafeTCPSocket
 from components.common import get_day_string, \
@@ -20,8 +19,7 @@ from components.common import get_day_string, \
 MINED_PER_MINUTE_PROCESS_AMOUNT = 64
 MAX_ENQUEUED_GET_MINED = 512
 
-logger = Logger("Storage manager - Mined per minute")
-
+logger = logging.getLogger(name="Storage manager - Mined per minute")
 
 def recv_minute(sock):
     date_string = sock.recv_string_with_len_prepended(DATE_SIZE_LEN_IN_BYTES)
@@ -47,7 +45,6 @@ def get_mined_per_minute(client_socket, client_address):
     minute = recv_minute(client_socket)
     logger.info(
         f"Received request of blocks mined in {minute} from client {client_address}")
-    # TODO codigo repetido con la escritura del indice
     day_string = get_day_string(minute)
     minutes_index_file_path = get_minutes_index_path(day_string)
 

@@ -1,4 +1,5 @@
 import datetime
+import logging
 import threading
 import time
 from common.common import Block, \
@@ -8,11 +9,10 @@ from common.common import Block, \
     MAX_ENTRY_SIZE_IN_BYTES
 from common.safe_tcp_socket import SafeTCPSocket
 from common.responses import respond_bad_request, respond_ok, respond_service_unavaliable
-from common.logger import Logger
 
 BLOCK_BUILD_LIMIT_IN_SECONDS = 12
 
-logger = Logger("Block builder")
+logger = logging.getLogger(name="Block builder")
 lock = threading.Lock()
 chunks = []
 start_time = datetime.datetime.now()
