@@ -3,14 +3,14 @@ from blockchain_components.mined_counter.common import read_list_from_miner_file
     mined_per_miner_locks
 from common.common import ADD_SUCCESSFUL_MINING_OP, \
     ADD_WRONG_MINING_OP, \
-    SUCESSFULL_INDEX, \
+    SUCCESSFUL_INDEX, \
     WRONG_INDEX
 from common.logger import Logger
 
 logger = Logger("Mined counter - Add mining")
 
 def add_successful_mining(miner_id):
-    add_mining(miner_id, SUCESSFULL_INDEX) # TODO fix typo
+    add_mining(miner_id, SUCCESSFUL_INDEX)
 
 def add_wrong_mining(miner_id):
     add_mining(miner_id, WRONG_INDEX)

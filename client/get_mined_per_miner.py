@@ -3,10 +3,10 @@ import json
 
 from common.common import ALL_MINERS, \
     BLOCK_APPENDER_HOST, \
-    BLOCK_APPENDER_PORT, \
+    MINED_COUNTER_PORT, \
     MINED_PER_MINER_SIZE_LEN_IN_BYTES, \
     MINER_ID_LEN_IN_BYTES, \
-    SUCESSFULL_INDEX, \
+    SUCCESSFUL_INDEX, \
     WRONG_INDEX
 from common.responses import RESPONSE_SIZE_IN_BYTES, \
     OK_RESPONSE_CODE
@@ -28,7 +28,7 @@ def main():
     miner_id = args.miner_id
 
     sock = SafeTCPSocket.newClient(
-        BLOCK_APPENDER_HOST, BLOCK_APPENDER_PORT)
+        BLOCK_APPENDER_HOST, MINED_COUNTER_PORT)
     sock.send_int(miner_id, MINER_ID_LEN_IN_BYTES)
 
     response_code = sock.recv_int(RESPONSE_SIZE_IN_BYTES)
@@ -50,7 +50,7 @@ def main():
 def print_row_for_miner(miner_id, mined_info_list):
     print("{:<10} {:<10} {:<10}".format(
         miner_id,
-        mined_info_list[SUCESSFULL_INDEX],
+        mined_info_list[SUCCESSFUL_INDEX],
         mined_info_list[WRONG_INDEX]
     ))
 

@@ -3,9 +3,8 @@ import json
 
 from blockchain_components.mined_counter.common import read_list_from_miner_file, \
     mined_per_miner_locks
-# TODO renombrar BLOCK_APPENDER_PORT
 from common.common import ALL_MINERS, \
-    BLOCK_APPENDER_PORT, \
+    MINED_COUNTER_PORT, \
     MINED_PER_MINER_SIZE_LEN_IN_BYTES, \
     MINERS_IDS, \
     MINER_ID_LEN_IN_BYTES
@@ -51,7 +50,7 @@ def proccess_pool_init(locks):
     mined_per_miner_locks = locks
 
 def get_mined_per_miner_server():
-    server_socket = SafeTCPSocket.newServer(BLOCK_APPENDER_PORT)
+    server_socket = SafeTCPSocket.newServer(MINED_COUNTER_PORT)
     process_pool = ProcessPoolExecutor(
         initializer=proccess_pool_init,
         initargs=(mined_per_miner_locks,),
