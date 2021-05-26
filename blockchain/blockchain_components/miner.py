@@ -1,7 +1,7 @@
 import logging
 from threading import Thread, Lock
 
-from common.common import isCryptographicPuzzleSolved, MAX_NONCE
+from blockchain_components.common import isCryptographicPuzzleSolved, MAX_NONCE
 
 class BlockMinedMessage:
     def __init__(self, miner_id, block):

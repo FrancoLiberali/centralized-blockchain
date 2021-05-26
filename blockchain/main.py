@@ -1,17 +1,18 @@
+import logging
 from multiprocessing import Process, Queue
 
 from blockchain_components import block_builder, miners_coordinator, miner, block_appender
 import blockchain_components.mined_counter.initializer
-from common.common import MINERS_IDS
+from blockchain_components.common import MINERS_IDS
+from common.envvars import MAX_BLOCKS_ENQUEUED_KEY, get_config_param
 from common.logger import configure_log, join_logger
-
-MAX_BLOCKS_ENQUEUED = 2048 # TODO envvar
 
 def main():
     log_queue, log_listener = configure_log()
+    max_blocks_enqueued = get_config_param(MAX_BLOCKS_ENQUEUED_KEY, logging.getLogger("Blockchain main"))
 
     block_builder_to_miners_coordinator_queue = Queue(
-        maxsize=MAX_BLOCKS_ENQUEUED
+        maxsize=max_blocks_enqueued
     )
 
     block_builder_p = Process(

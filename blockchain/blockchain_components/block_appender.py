@@ -1,27 +1,25 @@
 import datetime
 import logging
 
-from common.common import ADD_SUCCESSFUL_MINING_OP, \
-    ADD_WRONG_MINING_OP, \
-    isCryptographicPuzzleSolved, \
+from blockchain_components.common import isCryptographicPuzzleSolved, \
     INITIAL_DIFFICULTY, \
-    INITIAL_LAST_HASH, \
-    STORAGE_MANAGER_HOST, \
-    STORAGE_MANAGER_WRITE_PORT, \
-    TARGET_TIME_IN_SECONDS
+    INITIAL_LAST_HASH
+from common.constants import ADD_SUCCESSFUL_MINING_OP, ADD_WRONG_MINING_OP
+from common.envvars import STORAGE_MANAGER_HOST_KEY, STORAGE_MANAGER_WRITE_PORT_KEY, get_config_params
 from common.safe_tcp_socket import SafeTCPSocket
 from common.block_interface import send_block_with_hash
 
 BLOCKS_ADDED_TO_ADJUST_DIFFICULTY = 256
+TARGET_TIME_IN_SECONDS = 12
 
 class BlockAppender:
-    def __init__(self):
+    def __init__(self, store_manager_host, store_manager_write_port):
         self.difficulty = INITIAL_DIFFICULTY
         self.last_block_hash = INITIAL_LAST_HASH
         self.start_time = datetime.datetime.now()
         self.blocks_added = 0
         self.socket = SafeTCPSocket.newClient(
-            STORAGE_MANAGER_HOST, STORAGE_MANAGER_WRITE_PORT)
+            store_manager_host, store_manager_write_port)
 
     def addBlock(self, block):
         if (self.isBlockValid(block)):
@@ -51,7 +49,14 @@ class BlockAppender:
 
 def main(miners_queue, miners_coordinator_queue, mined_counter_queue):
     logger = logging.getLogger(name="Block appender")
-    block_appender = BlockAppender()
+    config_params = get_config_params(
+        [STORAGE_MANAGER_HOST_KEY, STORAGE_MANAGER_WRITE_PORT_KEY],
+        logger
+    )
+    block_appender = BlockAppender(
+        config_params[STORAGE_MANAGER_HOST_KEY],
+        config_params[STORAGE_MANAGER_WRITE_PORT_KEY]
+    )
     while True:
         message = miners_queue.get()
         block_hash_hex = hex(message.block.hash())

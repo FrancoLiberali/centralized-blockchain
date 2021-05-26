@@ -2,11 +2,10 @@ import datetime
 import logging
 import threading
 import time
-from common.common import Block, \
-    BLOCK_BUILDER_PORT, \
-    CHUNK_SIZE_LEN_IN_BYTES,\
-    MAX_ENTRIES_AMOUNT, \
-    MAX_ENTRY_SIZE_IN_BYTES
+
+from common.block import Block, MAX_ENTRIES_AMOUNT
+from common.constants import CHUNK_SIZE_LEN_IN_BYTES, MAX_ENTRY_SIZE_IN_BYTES
+from common.envvars import BLOCK_BUILDER_PORT_KEY, get_config_params
 from common.safe_tcp_socket import SafeTCPSocket
 from common.responses import respond_bad_request, respond_ok, respond_service_unavaliable
 
@@ -18,7 +17,12 @@ chunks = []
 start_time = datetime.datetime.now()
 
 def main(miners_coordinator_queue):
-    serversocket = SafeTCPSocket.newServer(BLOCK_BUILDER_PORT)
+    config_params = get_config_params(
+        [BLOCK_BUILDER_PORT_KEY],
+        logger
+    )
+    serversocket = SafeTCPSocket.newServer(
+        config_params[BLOCK_BUILDER_PORT_KEY])
     lauch_thread_to_verify_elapsed_time(miners_coordinator_queue)
 
     while True:

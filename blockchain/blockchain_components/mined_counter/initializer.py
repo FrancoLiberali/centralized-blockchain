@@ -6,7 +6,7 @@ from blockchain_components.mined_counter.get_mined_per_miner_server import get_m
 from blockchain_components.mined_counter.common import MINED_PER_MINER_PATH, \
     write_list_to_miner_file, \
     mined_per_miner_locks
-from common.common import MINERS_IDS
+from blockchain_components.common import MINERS_IDS
 
 def initialize_mined_per_miner_files_and_locks():
     Path(MINED_PER_MINER_PATH).mkdir(parents=True, exist_ok=True)

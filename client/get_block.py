@@ -1,8 +1,8 @@
 import argparse
+import logging
 
 from common.block_interface import send_hash, recv_hash_and_block_json
-from common.common import STORAGE_MANAGER_HOST, \
-    STORAGE_MANAGER_READ_PORT
+from common.envvars import STORAGE_MANAGER_HOST_KEY, STORAGE_MANAGER_READ_PORT_KEY, get_config_params
 from common.responses import RESPONSE_SIZE_IN_BYTES, \
     OK_RESPONSE_CODE, \
     NOT_FOUND_RESPONSE_CODE, \
@@ -18,8 +18,13 @@ def main():
     args = parser.parse_args()
     block_hash = args.block_hash
 
+    config_params = get_config_params(
+        [STORAGE_MANAGER_HOST_KEY, STORAGE_MANAGER_READ_PORT_KEY],
+        logging.getLogger()
+    )
+
     sock = SafeTCPSocket.newClient(
-        STORAGE_MANAGER_HOST, STORAGE_MANAGER_READ_PORT)
+        config_params[STORAGE_MANAGER_HOST_KEY], config_params[STORAGE_MANAGER_READ_PORT_KEY])
     send_hash(sock, int(block_hash, 16))
 
     response_code = sock.recv_int(RESPONSE_SIZE_IN_BYTES)

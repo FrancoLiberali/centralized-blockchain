@@ -2,7 +2,7 @@ import copy
 import logging
 import datetime
 
-from common.common import INITIAL_DIFFICULTY, INITIAL_LAST_HASH, MAX_NONCE
+from blockchain_components.common import INITIAL_DIFFICULTY, INITIAL_LAST_HASH, MAX_NONCE
 
 def main(block_builder_queue, miners_queues, block_appender_queue):
     logger = logging.getLogger(name="Miners coordinator")

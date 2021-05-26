@@ -2,13 +2,13 @@ from concurrent.futures import ProcessPoolExecutor
 import json
 import logging
 
+from blockchain_components.common import MINERS_IDS
 from blockchain_components.mined_counter.common import read_list_from_miner_file, \
     mined_per_miner_locks
-from common.common import ALL_MINERS, \
-    MINED_COUNTER_PORT, \
+from common.constants import ALL_MINERS, \
     MINED_PER_MINER_SIZE_LEN_IN_BYTES, \
-    MINERS_IDS, \
     MINER_ID_LEN_IN_BYTES
+from common.envvars import MINED_COUNTER_PORT_KEY, get_config_params
 from common.responses import respond_ok
 from common.safe_tcp_socket import SafeTCPSocket
 
@@ -50,7 +50,12 @@ def proccess_pool_init(locks):
     mined_per_miner_locks = locks
 
 def get_mined_per_miner_server():
-    server_socket = SafeTCPSocket.newServer(MINED_COUNTER_PORT)
+    config_params = get_config_params(
+        [MINED_COUNTER_PORT_KEY],
+        logger
+    )
+    server_socket = SafeTCPSocket.newServer(
+        config_params[MINED_COUNTER_PORT_KEY])
     process_pool = ProcessPoolExecutor(
         initializer=proccess_pool_init,
         initargs=(mined_per_miner_locks,),

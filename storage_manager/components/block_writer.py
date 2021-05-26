@@ -3,7 +3,6 @@ import json
 import logging
 
 from common.block_interface import recv_hash_and_block_json
-from common.common import STORAGE_MANAGER_WRITE_PORT
 from common.safe_tcp_socket import SafeTCPSocket
 from components.common import get_day_string, \
     get_minutes_index_path, \
@@ -92,9 +91,9 @@ def write_block(block_hash, block_json):
     logger.info(f"Writed block with hash {block_hash_hex} in {prefix}.json")
 
 
-def writer_server():
+def writer_server(port):
     # TODO DUDA al parar el container quiere excribir el block 0x0.json y vacio, no se porque. Hay que hacer un gracefully quit?
-    serversocket = SafeTCPSocket.newServer(STORAGE_MANAGER_WRITE_PORT)
+    serversocket = SafeTCPSocket.newServer(port)
     block_appender_socket, _ = serversocket.accept()
     while True:
         block_hash, block = recv_hash_and_block_json(block_appender_socket)

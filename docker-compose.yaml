@@ -10,6 +10,11 @@ services:
     environment:
       - TZ=America/Argentina/Buenos_Aires
       - PYTHONUNBUFFERED=1
+      - STORAGE_MANAGER_WRITE_PORT=12345
+      - STORAGE_MANAGER_READ_PORT=12346
+      - READ_PROCESS_AMOUNT=64
+      - STORAGE_MANAGER_MINED_PER_MINUTE_PORT=12347
+      - MINED_PER_MINUTE_PROCESS_AMOUNT=64
     networks:
       - blockchain_net
 
@@ -19,6 +24,12 @@ services:
     environment:
       - TZ=America/Argentina/Buenos_Aires
       - PYTHONUNBUFFERED=1
+      - MAX_BLOCKS_ENQUEUED=2048
+      - MINERS_AMOUNT=4
+      - BLOCK_BUILDER_PORT=12345
+      - MINED_COUNTER_PORT=12346
+      - STORAGE_MANAGER_HOST=storage_manager
+      - STORAGE_MANAGER_WRITE_PORT=12345
     volumes:
       - ./blockchain:/blockchain
       - ./common:/blockchain/common

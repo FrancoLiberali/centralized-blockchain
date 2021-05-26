@@ -3,8 +3,7 @@ from datetime import datetime
 import logging
 
 from common.block_interface import send_hash_and_block_json
-from common.common import STORAGE_MANAGER_MINED_PER_MINUTE_PORT, \
-    DATE_SIZE_LEN_IN_BYTES, \
+from common.constants import DATE_SIZE_LEN_IN_BYTES, \
     DATE_STRING_FORMAT, \
     HASH_LIST_SIZE_LEN_IN_BYTES
 from common.responses import respond_not_found, respond_ok, respond_service_unavaliable
@@ -15,9 +14,6 @@ from components.common import get_day_string, \
     minutes_indexs_locks, \
     read_from_json, \
     read_block
-
-MINED_PER_MINUTE_PROCESS_AMOUNT = 64
-MAX_ENQUEUED_GET_MINED = 512
 
 logger = logging.getLogger(name="Storage manager - Mined per minute")
 
@@ -61,9 +57,9 @@ def get_mined_per_minute(client_socket, client_address):
         respond_not_found(client_socket)
 
 
-def mined_per_minute_server():
-    process_pool = ProcessPoolExecutor(MINED_PER_MINUTE_PROCESS_AMOUNT)
-    server_socket = SafeTCPSocket.newServer(STORAGE_MANAGER_MINED_PER_MINUTE_PORT)
+def mined_per_minute_server(port, process_amount):
+    process_pool = ProcessPoolExecutor(process_amount)
+    server_socket = SafeTCPSocket.newServer(port)
     while True:
         client_socket, client_address = server_socket.accept()
         process_pool.submit(

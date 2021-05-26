@@ -1,12 +1,12 @@
 import argparse
+import logging
 from datetime import datetime
 
 from common.block_interface import recv_hash_and_block_json
-from common.common import STORAGE_MANAGER_HOST, \
-    STORAGE_MANAGER_MINED_PER_MINUTE_PORT, \
-    DATE_SIZE_LEN_IN_BYTES, \
+from common.constants import DATE_SIZE_LEN_IN_BYTES, \
     DATE_STRING_FORMAT, \
     HASH_LIST_SIZE_LEN_IN_BYTES
+from common.envvars import STORAGE_MANAGER_HOST_KEY, STORAGE_MANAGER_MINED_PER_MINUTE_PORT_KEY, get_config_params
 from common.responses import RESPONSE_SIZE_IN_BYTES, \
     OK_RESPONSE_CODE, \
     NOT_FOUND_RESPONSE_CODE, \
@@ -31,8 +31,13 @@ def main():
         print("Date format for minute is incorrect. Example: ./get_mined_per_minute.sh \"25/04/2021 16:04\"")
         return 1
 
+    config_params = get_config_params(
+        [STORAGE_MANAGER_HOST_KEY, STORAGE_MANAGER_MINED_PER_MINUTE_PORT_KEY],
+        logging.getLogger()
+    )
     sock = SafeTCPSocket.newClient(
-        STORAGE_MANAGER_HOST, STORAGE_MANAGER_MINED_PER_MINUTE_PORT)
+        config_params[STORAGE_MANAGER_HOST_KEY], config_params[STORAGE_MANAGER_MINED_PER_MINUTE_PORT_KEY]
+    )
 
     sock.send_string_with_len_prepended(minute_string, DATE_SIZE_LEN_IN_BYTES)
 
