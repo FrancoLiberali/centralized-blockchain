@@ -19,8 +19,7 @@ class SafeTCPSocket:
         # bind the socket to this host and a port
         safe_socket.sock.bind(('', port))
         # become a server socket
-        # TODO DUDA que poner en este numero y que pasa si se llena: que se loggee lo correspodiente
-        safe_socket.sock.listen(5)
+        safe_socket.sock.listen()
         return safe_socket
 
     @classmethod

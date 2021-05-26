@@ -58,9 +58,4 @@ def get_mined_per_miner_server():
     )
     while True:
         client_socket, client_address = server_socket.accept()
-        # TODO
-        # enqueued = process_pool._work_queue.qsize()
-        # if enqueued > MAX_ENQUEUED_READS:
-        # respond_service_unavaliable(client_socket)
-        # continue
         process_pool.submit(get_mined_per_miner, client_socket, client_address)
