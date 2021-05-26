@@ -1,5 +1,5 @@
 from pathlib import Path
-from threading import Thread
+from multiprocessing import Process
 
 from common.logger import configure_log
 from components.block_reader import reader_server
@@ -12,10 +12,10 @@ def main():
 
     Path(MINUTES_INDEX_PATH).mkdir(parents=True, exist_ok=True)
 
-    writers_t = Thread(target=writer_server) # TODO pasar a proccess
+    writers_t = Process(target=writer_server)
     writers_t.start()
 
-    mined_per_minute_t = Thread(target=mined_per_minute_server)
+    mined_per_minute_t = Process(target=mined_per_minute_server)
     mined_per_minute_t.start()
 
     reader_server()
