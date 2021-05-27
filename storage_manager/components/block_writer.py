@@ -92,7 +92,6 @@ def write_block(block_hash, block_json):
 
 
 def writer_server(port):
-    # TODO DUDA al parar el container quiere excribir el block 0x0.json y vacio, no se porque. Hay que hacer un gracefully quit?
     serversocket = SafeTCPSocket.newServer(port)
     block_appender_socket, _ = serversocket.accept()
     while True:
