@@ -1,9 +1,9 @@
-from business.block import DIFFICULTY_KEY, NONCE_KEY, PREV_HASH_KEY, TIMESTAMP_KEY
 import copy
 import logging
 import datetime
 
-from blockchain_components.common import INITIAL_DIFFICULTY, INITIAL_LAST_HASH, MAX_NONCE
+from business.block import DIFFICULTY_KEY, NONCE_KEY, PREV_HASH_KEY, TIMESTAMP_KEY, MAX_NONCE
+from business.block_appender import INITIAL_DIFFICULTY, INITIAL_LAST_HASH
 
 def main(block_builder_queue, miners_queues, block_appender_queue):
     logger = logging.getLogger(name="Miners coordinator")

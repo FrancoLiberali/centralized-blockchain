@@ -1,8 +1,8 @@
-from business.block import DIFFICULTY_KEY, NONCE_KEY
 import logging
 from threading import Thread, Lock
 
-from blockchain_components.common import isCryptographicPuzzleSolved, MAX_NONCE
+from business.block import DIFFICULTY_KEY, NONCE_KEY, MAX_NONCE
+from business.block_appender import isCryptographicPuzzleSolved
 
 class BlockMinedMessage:
     def __init__(self, miner_id, block):
@@ -46,6 +46,6 @@ def main(id, coordinator_queue, block_appender_queue):
             miner.block_to_be_mined = new_block
             # not t: first block received
             # not t.is_alive(): sended a block to the block appender and finished
-            if not t or not t.is_alive(): 
+            if not t or not t.is_alive():
                 t = Thread(target=miner.mine, args=((block_appender_queue),))
                 t.start()

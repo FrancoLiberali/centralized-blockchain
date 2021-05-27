@@ -1,6 +1,7 @@
 from hashlib import sha256
 
 MAX_ENTRIES_AMOUNT = 256
+MAX_NONCE = 2**(32*8) - 1  # max number posible in 32 bytes
 
 HEADER_KEY = 'header'
 PREV_HASH_KEY = 'prev_hash'
