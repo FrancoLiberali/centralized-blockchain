@@ -1,12 +1,13 @@
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 import logging
+from multiprocessing import Value
 
 from common.block_interface import send_hash_and_block_json
 from common.constants import DATE_SIZE_LEN_IN_BYTES, \
     DATE_STRING_FORMAT, \
     HASH_LIST_SIZE_LEN_IN_BYTES
-from common.responses import respond_not_found, respond_ok, respond_service_unavaliable
+from common.responses import respond_internal_server_error, respond_not_found, respond_ok, respond_service_unavaliable
 from common.safe_tcp_socket import SafeTCPSocket
 from components.common import get_day_string, \
     get_minutes_index_path, \
@@ -23,7 +24,6 @@ def recv_minute(sock):
 
 
 def respond_mined_that_minute(client_socket, hash_list):
-    # TODO aca seguro que no imprime las excepciones
     respond_ok(client_socket, close_socket=False)
     client_socket.send_int(len(hash_list),
                            HASH_LIST_SIZE_LEN_IN_BYTES)
@@ -38,23 +38,27 @@ def respond_mined_that_minute(client_socket, hash_list):
     client_socket.close()
 
 def get_mined_per_minute(client_socket, client_address):
-    minute = recv_minute(client_socket)
-    logger.info(
-        f"Received request of blocks mined in {minute} from client {client_address}")
-    day_string = get_day_string(minute)
-    minutes_index_file_path = get_minutes_index_path(day_string)
-
     try:
-        with minutes_indexs_locks_lock:
-            lock = minutes_indexs_locks[day_string]
-        minutes_index = read_from_json(lock, minutes_index_file_path)
-        mined_that_minute = minutes_index[repr(minute.timestamp())]
-        respond_mined_that_minute(client_socket, mined_that_minute)
+        minute = recv_minute(client_socket)
         logger.info(
-            f"Blocks mined in {minute} sended to client {client_address}")
-    except (KeyError, FileNotFoundError) as e:
-        logger.info(f"Blocks mined in {minute} not found")
-        respond_not_found(client_socket)
+            f"Received request of blocks mined in {minute} from client {client_address}")
+        day_string = get_day_string(minute)
+        minutes_index_file_path = get_minutes_index_path(day_string)
+
+        try:
+            with minutes_indexs_locks_lock:
+                lock = minutes_indexs_locks[day_string]
+            minutes_index = read_from_json(lock, minutes_index_file_path)
+            mined_that_minute = minutes_index[repr(minute.timestamp())]
+            respond_mined_that_minute(client_socket, mined_that_minute)
+            logger.info(
+                f"Blocks mined in {minute} sended to client {client_address}")
+        except (KeyError, FileNotFoundError) as e:
+            logger.info(f"Blocks mined in {minute} not found")
+            respond_not_found(client_socket)
+    except Exception as e:
+        logger.critical(f"An error ocurred while getting blocks mined per minute: {e}")
+        respond_internal_server_error(client_socket)
 
 
 def mined_per_minute_server(port, process_amount):

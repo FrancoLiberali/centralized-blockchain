@@ -9,39 +9,44 @@ from common.constants import ALL_MINERS, \
     MINED_PER_MINER_SIZE_LEN_IN_BYTES, \
     MINER_ID_LEN_IN_BYTES
 from common.envvars import GET_MINED_PER_MINER_PROCESS_AMOUNT_KEY, MINED_COUNTER_PORT_KEY, get_config_params
-from common.responses import respond_ok
+from common.responses import respond_internal_server_error, respond_ok
 from common.safe_tcp_socket import SafeTCPSocket
 
 logger = logging.getLogger(name="Mined counter - Get mined per miner")
 
 
 def get_mined_per_miner(client_socket, client_address):
-    miner_id = client_socket.recv_int(MINER_ID_LEN_IN_BYTES)
-    if (miner_id == ALL_MINERS):
-        logger.info(
-            f"Received request of blocks mined by all miners from client {client_address}")
-        to_be_sended = {}
-        for miner_id in MINERS_IDS:
+    try:
+        miner_id = client_socket.recv_int(MINER_ID_LEN_IN_BYTES)
+        if (miner_id == ALL_MINERS):
+            logger.info(
+                f"Received request of blocks mined by all miners from client {client_address}")
+            to_be_sended = {}
+            for miner_id in MINERS_IDS:
+                with mined_per_miner_locks[miner_id]:
+                    to_be_sended[miner_id] = read_list_from_miner_file(
+                        miner_id)
+        else:
+            logger.info(
+                f"Received request of blocks mined by Miner {miner_id} from client {client_address}")
             with mined_per_miner_locks[miner_id]:
-                to_be_sended[miner_id] = read_list_from_miner_file(
-                    miner_id)
-    else:
-        logger.info(
-            f"Received request of blocks mined by Miner {miner_id} from client {client_address}")
-        with mined_per_miner_locks[miner_id]:
-            to_be_sended = read_list_from_miner_file(miner_id)
-    to_be_sended_json = json.dumps(
-        to_be_sended,
-        indent=4,
-        sort_keys=False
-    )
-    respond_ok(client_socket, close_socket=False)
-    client_socket.send_string_with_len_prepended(
-        to_be_sended_json,
-        MINED_PER_MINER_SIZE_LEN_IN_BYTES
-    )
-    client_socket.close()
-    logger.info(f"Replied blocks mined to client {client_address}")
+                to_be_sended = read_list_from_miner_file(miner_id)
+        to_be_sended_json = json.dumps(
+            to_be_sended,
+            indent=4,
+            sort_keys=False
+        )
+        respond_ok(client_socket, close_socket=False)
+        client_socket.send_string_with_len_prepended(
+            to_be_sended_json,
+            MINED_PER_MINER_SIZE_LEN_IN_BYTES
+        )
+        client_socket.close()
+        logger.info(f"Replied blocks mined to client {client_address}")
+    except Exception as e:
+        logger.critical(
+            f"An error ocurred while getting blocks mined per miner: {e}")
+        respond_internal_server_error(client_socket)
 
 def proccess_pool_init(locks):
     global mined_per_miner_locks
