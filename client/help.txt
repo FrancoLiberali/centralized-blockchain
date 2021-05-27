@@ -1,5 +1,0 @@
-To add a chunk to the blockchan:
-
-./add_chunk <chunk_file_name>
-
-chuck_file_name should be a file in THIS folder

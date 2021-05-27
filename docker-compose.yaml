@@ -24,9 +24,9 @@ services:
     environment:
       - TZ=America/Argentina/Buenos_Aires
       - PYTHONUNBUFFERED=1
-      - MAX_BLOCKS_ENQUEUED=2048
       - MINERS_AMOUNT=4
       - BLOCK_BUILDER_PORT=12345
+      - MAX_BLOCKS_ENQUEUED=2048
       - MINED_COUNTER_PORT=12346
       - STORAGE_MANAGER_HOST=storage_manager
       - STORAGE_MANAGER_WRITE_PORT=12345

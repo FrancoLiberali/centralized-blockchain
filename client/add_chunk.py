@@ -10,8 +10,10 @@ from common.responses import RESPONSE_SIZE_IN_BYTES, \
 from common.safe_tcp_socket import SafeTCPSocket
 
 def main():
-    parser = argparse.ArgumentParser(description='Centralized Blockchain client for adding a chuck.')
-    parser.add_argument('input_file_path', metavar='<input_file>', type=argparse.FileType('rb'), help='path to the file to read a chunck')
+    parser = argparse.ArgumentParser(
+        description='Centralized Blockchain client for adding a chuck.')
+    parser.add_argument('input_file_path', metavar='<input_file>',
+                        type=argparse.FileType('rb'), help='Name of the file to read a chunk. The file must be in /client folder, e.g. ./add_chunk.sh lorem1.txt')
 
     args = parser.parse_args()
 
