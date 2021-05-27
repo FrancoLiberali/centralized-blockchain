@@ -8,11 +8,9 @@ from blockchain_components.mined_counter.common import read_list_from_miner_file
 from common.constants import ALL_MINERS, \
     MINED_PER_MINER_SIZE_LEN_IN_BYTES, \
     MINER_ID_LEN_IN_BYTES
-from common.envvars import MINED_COUNTER_PORT_KEY, get_config_params
+from common.envvars import GET_MINED_PER_MINER_PROCESS_AMOUNT_KEY, MINED_COUNTER_PORT_KEY, get_config_params
 from common.responses import respond_ok
 from common.safe_tcp_socket import SafeTCPSocket
-
-GET_MINED_PER_MINER_PROCESS_AMOUNT = 2  # TODO envvar
 
 logger = logging.getLogger(name="Mined counter - Get mined per miner")
 
@@ -51,7 +49,7 @@ def proccess_pool_init(locks):
 
 def get_mined_per_miner_server():
     config_params = get_config_params(
-        [MINED_COUNTER_PORT_KEY],
+        [MINED_COUNTER_PORT_KEY, GET_MINED_PER_MINER_PROCESS_AMOUNT_KEY],
         logger
     )
     server_socket = SafeTCPSocket.newServer(
@@ -59,7 +57,7 @@ def get_mined_per_miner_server():
     process_pool = ProcessPoolExecutor(
         initializer=proccess_pool_init,
         initargs=(mined_per_miner_locks,),
-        max_workers=GET_MINED_PER_MINER_PROCESS_AMOUNT
+        max_workers=config_params[GET_MINED_PER_MINER_PROCESS_AMOUNT_KEY]
     )
     while True:
         client_socket, client_address = server_socket.accept()

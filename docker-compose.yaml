@@ -12,9 +12,9 @@ services:
       - PYTHONUNBUFFERED=1
       - STORAGE_MANAGER_WRITE_PORT=12345
       - STORAGE_MANAGER_READ_PORT=12346
-      - READ_PROCESS_AMOUNT=64
+      - READ_PROCESS_AMOUNT=4
       - STORAGE_MANAGER_MINED_PER_MINUTE_PORT=12347
-      - MINED_PER_MINUTE_PROCESS_AMOUNT=64
+      - MINED_PER_MINUTE_PROCESS_AMOUNT=4
     networks:
       - blockchain_net
 
@@ -30,6 +30,7 @@ services:
       - MINED_COUNTER_PORT=12346
       - STORAGE_MANAGER_HOST=storage_manager
       - STORAGE_MANAGER_WRITE_PORT=12345
+      - GET_MINED_PER_MINER_PROCESS_AMOUNT=4
     volumes:
       - ./blockchain:/blockchain
       - ./common:/blockchain/common

@@ -25,8 +25,7 @@ Configuraciones de despliegue, configurables desde `docker-compose.yaml`:
 * `MAX_BLOCKS_ENQUEUED`: Cantidad máxima de bloques encolados para ser minados. Una vez esta cantidad se supere, el servicio para agregar bloques a la blockchain comenzara a responder `SERVICE_UNAVAILABLE_RESPONSE_CODE`.
 * `MINERS_AMOUNT`: Cantidad de miners a utilizar, los miners son quienes intentan resolver el desafio criptografico para agregar un bloque a la blockchain.
 * `MINED_COUNTER_PORT`: Puerto de funcionamiento del servicio que permite agregar chunks a la blockchain obtener información sobre los bloques minados por cada miner.
-
-
+* `GET_MINED_PER_MINER_PROCESS_AMOUNT`: Cantidad de procesos que forman el `pool` de procesos que responde request para obtener cantidad blocks minados por cada miner.
 
 
 ### Clientes
