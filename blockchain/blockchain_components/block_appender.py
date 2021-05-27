@@ -42,7 +42,6 @@ def main(miners_queue, miners_coordinator_queue, mined_counter_queue):
             send_add_wrong_mining(mined_counter_queue, message.miner_id)
 
 
-# TODO a comunications
 class NewMinedMessage:
     def __init__(self, miner_id, block):
         self.miner_id = miner_id
