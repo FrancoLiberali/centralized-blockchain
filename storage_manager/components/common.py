@@ -4,9 +4,9 @@ from multiprocessing import Lock, Manager
 BLOCKCHAIN_FILES_PATH = "/storage_manager/blockchain_files"
 MINUTES_INDEX_PATH = f"{BLOCKCHAIN_FILES_PATH}/minutes_index"
 
-# TODO DUDA no es la solucion mas eficiente, lectores entre ellos pueden leer a la vez (problema de lector - escritor)
 shared_memory_manager = Manager()
 hash_prefix_locks_lock = Lock()
+# TODO no es la solucion mas eficiente, lectores deberian poder leer a la vez (problema de lector - escritor)
 hash_prefix_locks = shared_memory_manager.dict()
 minutes_indexs_locks_lock = Lock()
 minutes_indexs_locks = shared_memory_manager.dict()

@@ -1,3 +1,4 @@
+from common.block import DIFFICULTY_KEY, NONCE_KEY
 import logging
 from threading import Thread, Lock
 
@@ -19,17 +20,17 @@ class Miner():
         while True:
             with self.lock:
                 if self.block_to_be_mined != None:
-                    if isCryptographicPuzzleSolved(self.block_to_be_mined, self.block_to_be_mined.header['difficulty']):
+                    if isCryptographicPuzzleSolved(self.block_to_be_mined, self.block_to_be_mined.header[DIFFICULTY_KEY]):
                         self.logger.info(
-                            f"Cryptografic puzzle solved with nonce: {self.block_to_be_mined.header['nonce']}"
+                            f"Cryptografic puzzle solved with nonce: {self.block_to_be_mined.header[NONCE_KEY]}"
                         )
                         block_appender_queue.put(
                             BlockMinedMessage(self.id, self.block_to_be_mined)
                         )
                         break
-                    if self.block_to_be_mined.header['nonce'] == MAX_NONCE:
+                    if self.block_to_be_mined.header[NONCE_KEY] == MAX_NONCE:
                         break
-                    self.block_to_be_mined.header['nonce'] += 1
+                    self.block_to_be_mined.header[NONCE_KEY] += 1
 
 def main(id, coordinator_queue, block_appender_queue):
     logger = logging.getLogger(name=f"Miner {id} master")
@@ -39,7 +40,7 @@ def main(id, coordinator_queue, block_appender_queue):
     while True:
         new_block = coordinator_queue.get()
         logger.info(
-            f"Starting to mine block with nonce: {new_block.header['nonce']}"
+            f"Starting to mine block with nonce: {new_block.header[NONCE_KEY]}"
         )
         with miner.lock:
             miner.block_to_be_mined = new_block

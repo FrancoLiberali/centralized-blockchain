@@ -1,10 +1,10 @@
+from common.block import DIFFICULTY_KEY, ENTRIES_AMOUNT_KEY, HEADER_KEY, NONCE_KEY, PREV_HASH_KEY, TIMESTAMP_KEY
 import json
 
 # 2**32 is bigger than 256*65356 (MAX_ENTRIES_AMOUNT*MAX_ENTRY_SIZE_IN_BYTES)
 BLOCK_SIZE_LEN_IN_BYTES = 4
 BLOCK_HASH_LEN_IN_BYTES = 32
 
-# TODO me gustaria que te abstraiga del socket tambien
 def send_hash(sock, block_hash):
     sock.send_int(block_hash, BLOCK_HASH_LEN_IN_BYTES)
 
@@ -21,12 +21,12 @@ def send_hash_and_block_json(sock, block_hash, block_json):
 
 def _block_to_json(block):
     return json.dumps({
-        "header": {
-            'prev_hash': hex(block.header['prev_hash']),
-            'nonce': block.header['nonce'],
-            'timestamp': block.header['timestamp'].timestamp(),
-            'difficulty': block.header['difficulty'],
-            'entries_amount': block.header['entries_amount'],
+        HEADER_KEY: {
+            PREV_HASH_KEY: hex(block.header[PREV_HASH_KEY]),
+            NONCE_KEY: block.header[NONCE_KEY],
+            TIMESTAMP_KEY: block.header[TIMESTAMP_KEY].timestamp(),
+            DIFFICULTY_KEY: block.header[DIFFICULTY_KEY],
+            ENTRIES_AMOUNT_KEY: block.header[ENTRIES_AMOUNT_KEY],
         },
         "entries": block.entries
     }, indent=4, sort_keys=False)

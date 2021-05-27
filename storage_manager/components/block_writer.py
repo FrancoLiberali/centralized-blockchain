@@ -1,3 +1,4 @@
+from common.block import HEADER_KEY, TIMESTAMP_KEY
 from datetime import datetime
 import json
 import logging
@@ -74,8 +75,7 @@ def write_block(block_hash, block_json):
     )
 
     block_dict = json.loads(block_json)
-    # TODO poner en variable global
-    mined_in = datetime.fromtimestamp(block_dict['header']['timestamp'])
+    mined_in = datetime.fromtimestamp(block_dict[HEADER_KEY][TIMESTAMP_KEY])
     minute = mined_in.replace(second=0, microsecond=0)
     day_string = get_day_string(minute)
     minutes_index_file_path = get_minutes_index_path(day_string)

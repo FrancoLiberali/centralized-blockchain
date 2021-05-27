@@ -2,14 +2,21 @@ from hashlib import sha256
 
 MAX_ENTRIES_AMOUNT = 256
 
+HEADER_KEY = 'header'
+PREV_HASH_KEY = 'prev_hash'
+NONCE_KEY = 'nonce'
+TIMESTAMP_KEY = 'timestamp'
+DIFFICULTY_KEY = 'difficulty'
+ENTRIES_AMOUNT_KEY = 'entries_amount'
+
 class Block:
     def __init__(self, entries):
         self.header = {
-            'prev_hash': 0,
-            'nonce': 0,
-            'timestamp': None,
-            'difficulty': 0,
-            'entries_amount': len(entries),
+            PREV_HASH_KEY: 0,
+            NONCE_KEY: 0,
+            TIMESTAMP_KEY: None,
+            DIFFICULTY_KEY: 0,
+            ENTRIES_AMOUNT_KEY: len(entries),
         }
         if (len(entries) <= MAX_ENTRIES_AMOUNT):
             self.entries = entries
@@ -35,4 +42,4 @@ class Block:
         'entries': [
 \t\t\t{6}
         ]
-        """.format(hex(self.hash()), hex(self.header['prev_hash']), self.header['nonce'], self.header['timestamp'], self.header['entries_amount'], self.header['difficulty'], entries)
+        """.format(hex(self.hash()), hex(self.header[PREV_HASH_KEY]), self.header[NONCE_KEY], self.header[TIMESTAMP_KEY], self.header[ENTRIES_AMOUNT_KEY], self.header[DIFFICULTY_KEY], entries)

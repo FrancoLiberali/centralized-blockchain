@@ -2,7 +2,8 @@ import json
 
 MINED_PER_MINER_PATH = "/blockchain/blockchain_components/mined_counter/mined_per_miner_files"
 
-mined_per_miner_locks = {} # TODO no es lo mas eficiente, problema de lectores-escritores
+# TODO no es la solucion mas eficiente, lectores deberian poder leer a la vez (problema de lector - escritor)
+mined_per_miner_locks = {}
 
 def get_mined_by_miner_path(miner_id):
     return f"{MINED_PER_MINER_PATH}/{miner_id}.json"

@@ -1,3 +1,4 @@
+from common.block import DIFFICULTY_KEY, NONCE_KEY, PREV_HASH_KEY, TIMESTAMP_KEY
 import copy
 import logging
 import datetime
@@ -11,9 +12,9 @@ def main(block_builder_queue, miners_queues, block_appender_queue):
     nonce_range_per_miner = int(MAX_NONCE // len(miners_queues))
     while True:
         block_to_be_mined = block_builder_queue.get()
-        block_to_be_mined.header['timestamp'] = datetime.datetime.now()
-        block_to_be_mined.header['prev_hash'] = last_hash
-        block_to_be_mined.header['difficulty'] = difficulty
+        block_to_be_mined.header[TIMESTAMP_KEY] = datetime.datetime.now()
+        block_to_be_mined.header[PREV_HASH_KEY] = last_hash
+        block_to_be_mined.header[DIFFICULTY_KEY] = difficulty
         logger.info(
             f"Sending block to all miners: {block_to_be_mined}"
         )
@@ -22,6 +23,6 @@ def main(block_builder_queue, miners_queues, block_appender_queue):
             # probably because queue put is buffered and then the only existing
             # instance of block_to_be_mined is the last one
             block = copy.deepcopy(block_to_be_mined)
-            block.header['nonce'] = nonce_range_per_miner * i
+            block.header[NONCE_KEY] = nonce_range_per_miner * i
             miner_queue.put(block)
         last_hash, difficulty = block_appender_queue.get()

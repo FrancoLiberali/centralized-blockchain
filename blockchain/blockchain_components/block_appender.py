@@ -1,3 +1,4 @@
+from common.block import PREV_HASH_KEY
 import datetime
 import logging
 
@@ -44,7 +45,7 @@ class BlockAppender:
             self.blocks_added = 0
 
     def isBlockValid(self, block):
-        return block.header['prev_hash'] == self.last_block_hash and isCryptographicPuzzleSolved(block, self.difficulty)
+        return block.header[PREV_HASH_KEY] == self.last_block_hash and isCryptographicPuzzleSolved(block, self.difficulty)
 
 
 def main(miners_queue, miners_coordinator_queue, mined_counter_queue):
