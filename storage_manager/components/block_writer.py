@@ -1,10 +1,10 @@
-from common.block import HEADER_KEY, TIMESTAMP_KEY
+from business.block import HEADER_KEY, TIMESTAMP_KEY
 from datetime import datetime
 import json
 import logging
 
-from common.block_interface import recv_hash_and_block_json
-from common.safe_tcp_socket import SafeTCPSocket
+from communications.block_interface import recv_hash_and_block_json
+from communications.safe_tcp_socket import SafeTCPSocket
 from components.common import get_day_string, \
     get_minutes_index_path, \
     shared_memory_manager, \

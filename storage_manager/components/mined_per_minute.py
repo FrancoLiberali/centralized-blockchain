@@ -3,12 +3,12 @@ from datetime import datetime
 import logging
 from multiprocessing import Value
 
-from common.block_interface import send_hash_and_block_json
-from common.constants import DATE_SIZE_LEN_IN_BYTES, \
+from communications.block_interface import send_hash_and_block_json
+from communications.constants import DATE_SIZE_LEN_IN_BYTES, \
     DATE_STRING_FORMAT, \
     HASH_LIST_SIZE_LEN_IN_BYTES
-from common.responses import respond_internal_server_error, respond_not_found, respond_ok
-from common.safe_tcp_socket import SafeTCPSocket
+from communications.responses import respond_internal_server_error, respond_not_found, respond_ok
+from communications.safe_tcp_socket import SafeTCPSocket
 from components.common import get_block_hash_prefix, get_day_string, \
     get_minutes_index_path, \
     minutes_indexs_locks_lock, \

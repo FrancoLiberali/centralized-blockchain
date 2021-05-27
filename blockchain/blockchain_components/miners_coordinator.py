@@ -1,4 +1,4 @@
-from common.block import DIFFICULTY_KEY, NONCE_KEY, PREV_HASH_KEY, TIMESTAMP_KEY
+from business.block import DIFFICULTY_KEY, NONCE_KEY, PREV_HASH_KEY, TIMESTAMP_KEY
 import copy
 import logging
 import datetime

@@ -3,11 +3,11 @@ import logging
 import threading
 import time
 
-from common.block import Block, MAX_ENTRIES_AMOUNT
-from common.constants import CHUNK_SIZE_LEN_IN_BYTES, MAX_ENTRY_SIZE_IN_BYTES
-from common.envvars import BLOCK_BUILDER_PORT_KEY, get_config_params
-from common.safe_tcp_socket import SafeTCPSocket
-from common.responses import respond_bad_request, respond_ok, respond_service_unavaliable
+from business.block import Block, MAX_ENTRIES_AMOUNT
+from communications.constants import CHUNK_SIZE_LEN_IN_BYTES, MAX_ENTRY_SIZE_IN_BYTES
+from config.envvars import BLOCK_BUILDER_PORT_KEY, get_config_params
+from communications.safe_tcp_socket import SafeTCPSocket
+from communications.responses import respond_bad_request, respond_ok, respond_service_unavaliable
 
 BLOCK_BUILD_LIMIT_IN_SECONDS = 12
 

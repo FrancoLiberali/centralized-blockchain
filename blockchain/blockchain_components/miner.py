@@ -1,4 +1,4 @@
-from common.block import DIFFICULTY_KEY, NONCE_KEY
+from business.block import DIFFICULTY_KEY, NONCE_KEY
 import logging
 from threading import Thread, Lock
 

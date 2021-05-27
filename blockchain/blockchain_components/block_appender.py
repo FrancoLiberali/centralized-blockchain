@@ -1,14 +1,14 @@
-from common.block import PREV_HASH_KEY
 import datetime
 import logging
 
 from blockchain_components.common import isCryptographicPuzzleSolved, \
     INITIAL_DIFFICULTY, \
     INITIAL_LAST_HASH
-from common.constants import ADD_SUCCESSFUL_MINING_OP, ADD_WRONG_MINING_OP
-from common.envvars import STORAGE_MANAGER_HOST_KEY, STORAGE_MANAGER_WRITE_PORT_KEY, get_config_params
-from common.safe_tcp_socket import SafeTCPSocket
-from common.block_interface import send_block_with_hash
+from business.block import PREV_HASH_KEY
+from communications.block_interface import send_block_with_hash
+from communications.constants import ADD_SUCCESSFUL_MINING_OP, ADD_WRONG_MINING_OP
+from communications.safe_tcp_socket import SafeTCPSocket
+from config.envvars import STORAGE_MANAGER_HOST_KEY, STORAGE_MANAGER_WRITE_PORT_KEY, get_config_params
 
 BLOCKS_ADDED_TO_ADJUST_DIFFICULTY = 256
 TARGET_TIME_IN_SECONDS = 12

@@ -1,3 +1,6 @@
 FROM python:3.8
 COPY ./client /
-COPY ./common /common
+COPY ./config /config
+COPY ./communications /communications
+COPY ./logger /logger
+COPY ./business /business

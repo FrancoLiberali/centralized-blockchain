@@ -2,16 +2,16 @@ import argparse
 import logging
 from datetime import datetime
 
-from common.block_interface import recv_hash_and_block_json
-from common.constants import DATE_SIZE_LEN_IN_BYTES, \
+from communications.block_interface import recv_hash_and_block_json
+from communications.constants import DATE_SIZE_LEN_IN_BYTES, \
     DATE_STRING_FORMAT, \
     HASH_LIST_SIZE_LEN_IN_BYTES
-from common.envvars import STORAGE_MANAGER_HOST_KEY, STORAGE_MANAGER_MINED_PER_MINUTE_PORT_KEY, get_config_params
-from common.responses import RESPONSE_SIZE_IN_BYTES, \
+from config.envvars import STORAGE_MANAGER_HOST_KEY, STORAGE_MANAGER_MINED_PER_MINUTE_PORT_KEY, get_config_params
+from communications.responses import RESPONSE_SIZE_IN_BYTES, \
     OK_RESPONSE_CODE, \
     NOT_FOUND_RESPONSE_CODE, \
     SERVICE_UNAVAILABLE_RESPONSE_CODE
-from common.safe_tcp_socket import SafeTCPSocket
+from communications.safe_tcp_socket import SafeTCPSocket
 
 def main():
     parser = argparse.ArgumentParser(

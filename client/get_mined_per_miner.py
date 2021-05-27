@@ -2,15 +2,15 @@ import argparse
 import json
 import logging
 
-from common.constants import ALL_MINERS, \
+from communications.constants import ALL_MINERS, \
     MINED_PER_MINER_SIZE_LEN_IN_BYTES, \
     MINER_ID_LEN_IN_BYTES, \
     SUCCESSFUL_INDEX, \
     WRONG_INDEX
-from common.envvars import BLOCK_APPENDER_HOST_KEY, MINED_COUNTER_PORT_KEY, get_config_params
-from common.responses import RESPONSE_SIZE_IN_BYTES, \
+from config.envvars import BLOCK_APPENDER_HOST_KEY, MINED_COUNTER_PORT_KEY, get_config_params
+from communications.responses import RESPONSE_SIZE_IN_BYTES, \
     OK_RESPONSE_CODE
-from common.safe_tcp_socket import SafeTCPSocket
+from communications.safe_tcp_socket import SafeTCPSocket
 
 def main():
     parser = argparse.ArgumentParser(

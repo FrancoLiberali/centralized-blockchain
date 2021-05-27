@@ -5,7 +5,10 @@ services:
     image: python:3.8
     volumes:
       - ./storage_manager:/storage_manager
-      - ./common:/storage_manager/common
+      - ./config:/storage_manager/config
+      - ./communications:/storage_manager/communications
+      - ./business:/storage_manager/business
+      - ./logger:/storage_manager/logger
     entrypoint: python3 /storage_manager/main.py
     environment:
       - TZ=America/Argentina/Buenos_Aires
@@ -33,7 +36,10 @@ services:
       - GET_MINED_PER_MINER_PROCESS_AMOUNT=4
     volumes:
       - ./blockchain:/blockchain
-      - ./common:/blockchain/common
+      - ./config:/blockchain/config
+      - ./communications:/blockchain/communications
+      - ./business:/blockchain/business
+      - ./logger:/blockchain/logger
     entrypoint: python3 /blockchain/main.py
     networks:
       - blockchain_net

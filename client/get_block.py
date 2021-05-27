@@ -1,13 +1,13 @@
 import argparse
 import logging
 
-from common.block_interface import send_hash, recv_hash_and_block_json
-from common.envvars import STORAGE_MANAGER_HOST_KEY, STORAGE_MANAGER_READ_PORT_KEY, get_config_params
-from common.responses import RESPONSE_SIZE_IN_BYTES, \
+from communications.block_interface import send_hash, recv_hash_and_block_json
+from config.envvars import STORAGE_MANAGER_HOST_KEY, STORAGE_MANAGER_READ_PORT_KEY, get_config_params
+from communications.responses import RESPONSE_SIZE_IN_BYTES, \
     OK_RESPONSE_CODE, \
     NOT_FOUND_RESPONSE_CODE, \
     SERVICE_UNAVAILABLE_RESPONSE_CODE
-from common.safe_tcp_socket import SafeTCPSocket
+from communications.safe_tcp_socket import SafeTCPSocket
 
 def main():
     parser = argparse.ArgumentParser(

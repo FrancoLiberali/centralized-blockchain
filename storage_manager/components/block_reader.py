@@ -1,9 +1,9 @@
 from concurrent.futures import ProcessPoolExecutor
 import logging
 
-from common.block_interface import send_hash_and_block_json, recv_hash
-from common.responses import respond_internal_server_error, respond_not_found, respond_ok
-from common.safe_tcp_socket import SafeTCPSocket
+from communications.block_interface import send_hash_and_block_json, recv_hash
+from communications.responses import respond_internal_server_error, respond_not_found, respond_ok
+from communications.safe_tcp_socket import SafeTCPSocket
 from components.common import read_block
 
 logger = logging.getLogger(name="Storage manager - Block reader")

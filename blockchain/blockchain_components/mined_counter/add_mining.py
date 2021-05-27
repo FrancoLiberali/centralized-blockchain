@@ -3,7 +3,7 @@ import logging
 from blockchain_components.mined_counter.common import read_list_from_miner_file, \
     write_list_to_miner_file, \
     mined_per_miner_locks
-from common.constants import ADD_SUCCESSFUL_MINING_OP, \
+from communications.constants import ADD_SUCCESSFUL_MINING_OP, \
     ADD_WRONG_MINING_OP, \
     SUCCESSFUL_INDEX, \
     WRONG_INDEX

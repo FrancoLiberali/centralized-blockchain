@@ -4,8 +4,8 @@ from multiprocessing import Process, Queue
 from blockchain_components import block_builder, miners_coordinator, miner, block_appender
 import blockchain_components.mined_counter.initializer
 from blockchain_components.common import MINERS_IDS
-from common.envvars import MAX_BLOCKS_ENQUEUED_KEY, get_config_param
-from common.logger import configure_log, join_logger
+from config.envvars import MAX_BLOCKS_ENQUEUED_KEY, get_config_param
+from logger.logger import configure_log, join_logger
 
 def main():
     log_queue, log_listener = configure_log()

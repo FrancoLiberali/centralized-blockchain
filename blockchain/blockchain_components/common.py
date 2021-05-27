@@ -1,6 +1,6 @@
 import logging
 
-from common.envvars import MINERS_AMOUNT_KEY, get_config_param
+from config.envvars import MINERS_AMOUNT_KEY, get_config_param
 
 MINERS_AMOUNT = get_config_param(
     MINERS_AMOUNT_KEY, logging.getLogger("Blockchain main")

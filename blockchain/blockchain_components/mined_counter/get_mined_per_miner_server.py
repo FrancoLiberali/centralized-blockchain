@@ -5,12 +5,12 @@ import logging
 from blockchain_components.common import MINERS_IDS
 from blockchain_components.mined_counter.common import read_list_from_miner_file, \
     mined_per_miner_locks
-from common.constants import ALL_MINERS, \
+from communications.constants import ALL_MINERS, \
     MINED_PER_MINER_SIZE_LEN_IN_BYTES, \
     MINER_ID_LEN_IN_BYTES
-from common.envvars import GET_MINED_PER_MINER_PROCESS_AMOUNT_KEY, MINED_COUNTER_PORT_KEY, get_config_params
-from common.responses import respond_internal_server_error, respond_ok
-from common.safe_tcp_socket import SafeTCPSocket
+from config.envvars import GET_MINED_PER_MINER_PROCESS_AMOUNT_KEY, MINED_COUNTER_PORT_KEY, get_config_params
+from communications.responses import respond_internal_server_error, respond_ok
+from communications.safe_tcp_socket import SafeTCPSocket
 
 logger = logging.getLogger(name="Mined counter - Get mined per miner")
 

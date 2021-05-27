@@ -1,13 +1,13 @@
 import argparse
 import logging
 
-from common.constants import MAX_ENTRY_SIZE_IN_BYTES, \
+from communications.constants import MAX_ENTRY_SIZE_IN_BYTES, \
     CHUNK_SIZE_LEN_IN_BYTES
-from common.envvars import BLOCK_BUILDER_HOST_KEY, BLOCK_BUILDER_PORT_KEY, get_config_params
-from common.responses import RESPONSE_SIZE_IN_BYTES, \
+from config.envvars import BLOCK_BUILDER_HOST_KEY, BLOCK_BUILDER_PORT_KEY, get_config_params
+from communications.responses import RESPONSE_SIZE_IN_BYTES, \
     OK_RESPONSE_CODE, \
     SERVICE_UNAVAILABLE_RESPONSE_CODE
-from common.safe_tcp_socket import SafeTCPSocket
+from communications.safe_tcp_socket import SafeTCPSocket
 
 def main():
     parser = argparse.ArgumentParser(
