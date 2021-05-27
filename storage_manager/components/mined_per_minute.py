@@ -7,14 +7,14 @@ from common.block_interface import send_hash_and_block_json
 from common.constants import DATE_SIZE_LEN_IN_BYTES, \
     DATE_STRING_FORMAT, \
     HASH_LIST_SIZE_LEN_IN_BYTES
-from common.responses import respond_internal_server_error, respond_not_found, respond_ok, respond_service_unavaliable
+from common.responses import respond_internal_server_error, respond_not_found, respond_ok
 from common.safe_tcp_socket import SafeTCPSocket
-from components.common import get_day_string, \
+from components.common import get_block_hash_prefix, get_day_string, \
     get_minutes_index_path, \
     minutes_indexs_locks_lock, \
     minutes_indexs_locks, \
-    read_from_json, \
-    read_block
+    read_blocks, \
+    read_from_json
 
 logger = logging.getLogger(name="Storage manager - Mined per minute")
 
@@ -27,14 +27,24 @@ def respond_mined_that_minute(client_socket, hash_list):
     respond_ok(client_socket, close_socket=False)
     client_socket.send_int(len(hash_list),
                            HASH_LIST_SIZE_LEN_IN_BYTES)
+
+    hashes_by_prefix = {}
     for block_hash in hash_list:
-        # TODO se puede mejorar, mas de uno podria tener el mismo prefijo
-        block_json = read_block(logger, block_hash)
-        send_hash_and_block_json(
-            client_socket,
-            int(block_hash, 16),
-            block_json
-        )
+        prefix = get_block_hash_prefix(block_hash)
+        with_that_prefix_hash_list = hashes_by_prefix.get(prefix, [])
+        with_that_prefix_hash_list.append(block_hash)
+        hashes_by_prefix[prefix] = with_that_prefix_hash_list
+
+    for prefix, with_that_prefix_hash_list in hashes_by_prefix.items():
+        block_jsons = read_blocks(logger, prefix, with_that_prefix_hash_list)
+        for block_hash, block_json in block_jsons:
+            print(block_hash)
+            print(block_json)
+            send_hash_and_block_json(
+                client_socket,
+                int(block_hash, 16),
+                block_json
+            )
     client_socket.close()
 
 def get_mined_per_minute(client_socket, client_address):

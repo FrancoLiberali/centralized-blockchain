@@ -28,18 +28,21 @@ def read_from_json(lock, json_file_path):
         with open(json_file_path, "r") as json_file:
             return json.load(json_file)
 
-def read_block(logger, block_hash_hex):
-    prefix = get_block_hash_prefix(block_hash_hex)
+def read_blocks(logger, prefix, hash_list):
     block_with_prefix_path = get_blocks_by_prefix_path(prefix)
 
     try:
         with hash_prefix_locks_lock:
             lock = hash_prefix_locks[prefix]
         blocks_dict = read_from_json(lock, block_with_prefix_path)
-        return blocks_dict[block_hash_hex]
+        return [(block_hash_hex, blocks_dict[block_hash_hex]) for block_hash_hex in hash_list]
     except (KeyError, FileNotFoundError) as e:
-        logger.info(f"Block {block_hash_hex} not found")
+        logger.info(f"Block not found: {e}")
         raise e
+
+def read_block(logger, block_hash_hex):
+    prefix = get_block_hash_prefix(block_hash_hex)
+    return read_blocks(logger, prefix, [block_hash_hex])[0][1]
 
 def get_day_string(minute):
     return minute.replace(hour=0, minute=0).strftime('%Y-%m-%d')
