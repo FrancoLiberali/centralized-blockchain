@@ -30,7 +30,7 @@ def main(miners_coordinator_queue):
         if not miners_coordinator_queue.full():
             chunk_size = clientsocket.recv_int(CHUNK_SIZE_LEN_IN_BYTES)
             if chunk_size > MAX_ENTRY_SIZE_IN_BYTES:
-                respond_bad_request(clientsocket) # TODO aclarar en informe
+                respond_bad_request(clientsocket)
 
             chunk = clientsocket.recv_string(chunk_size)
             logger.info(f"Received chuck from client {client_adress}: {chunk}")
