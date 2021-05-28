@@ -9,7 +9,7 @@ class BlockMinedMessage:
         self.miner_id = miner_id
         self.block = block
 
-class Miner():
+class Miner:
     def __init__(self, id):
         self.id = id
         self.logger = logging.getLogger(name=f"Miner {id}")

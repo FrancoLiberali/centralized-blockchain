@@ -43,9 +43,9 @@ def main(miners_queue, miners_coordinator_queue, mined_counter_queue):
 
 
 class NewMinedMessage:
-    def __init__(self, miner_id, block):
+    def __init__(self, miner_id, operation):
         self.miner_id = miner_id
-        self.operation = block
+        self.operation = operation
 
 def send_add_successful_mining(mined_counter_queue, miner_id):
     mined_counter_queue.put(
